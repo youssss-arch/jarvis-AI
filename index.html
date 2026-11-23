@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JARVIS // CERVEAU-TRADING — Système Autonome IA</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            bgBase: '#080b0f',
+            bgPanel: '#0e131a',
+            bgCard: '#121821',
+            bgHover: '#18202c',
+            borderSubtle: '#1e2736',
+            emeraldNeon: '#00e676',
+            cyanNeon: '#00b0ff',
+            amberNeon: '#ffab00',
+            crimsonNeon: '#ff3d57',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      background-color: #080b0f;
+      color: #e2e8f0;
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+    }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #080b0f;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e2736;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #2e3b52;
+    }
+
+    /* Ticker animation */
+    @keyframes tickerScroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .ticker-track {
+      display: flex;
+      width: max-content;
+      animation: tickerScroll 42s linear infinite;
+    }
+    .ticker-track:hover {
+      animation-play-state: paused;
+    }
+
+    /* Subtle grid background */
+    .cyber-grid {
+      background-image: 
+        linear-gradient(to right, rgba(30, 39, 54, 0.25) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(30, 39, 54, 0.25) 1px, transparent 1px);
+      background-size: 32px 32px;
+    }
+
+    /* Glow effects */
+    .glow-emerald {
+      box-shadow: 0 0 14px rgba(0, 230, 118, 0.18);
+    }
+    .glow-cyan {
+      box-shadow: 0 0 14px rgba(0, 176, 255, 0.18);
+    }
+    .glow-amber {
+      box-shadow: 0 0 14px rgba(255, 171, 0, 0.18);
+    }
+
+    /* Pulse dot */
+    @keyframes pulseRing {
+      0% { transform: scale(0.8); opacity: 0.8; }
+      100% { transform: scale(2.2); opacity: 0; }
+    }
+    .pulse-dot::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 9999px;
+      background-color: inherit;
+      animation: pulseRing 1.8s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col select-none">
+
+  <!-- TOP BAR -->
+  <header class="bg-bgPanel border-b border-borderSubtle px-3 lg:px-5 py-2.5 flex flex-wrap items-center justify-between gap-3 sticky top-0 z-30">
+    <!-- Brand & Agents -->
+    <div class="flex flex-wrap items-center gap-3 lg:gap-4">
+      <!-- Mobile menu toggle -->
+      <button id="mobileMenuBtn" class="lg:hidden p-2 rounded-lg bg-bgCard border border-borderSubtle text-slate-300 hover:text-white">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+
+      <div class="flex items-center gap-2.5">
+        <div class="w-7 h-7 rounded-lg bg-emeraldNeon/10 border border-emeraldNeon/40 flex items-center justify-center text-emeraldNeon">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        </div>
+        <span class="font-mono font-bold tracking-wider text-sm lg:text-base text-white">
+          JARVIS <span class="text-slate-500">//</span> <span class="text-emeraldNeon">CERVEAU-TRADING</span>
+        </span>
+      </div>
+
+      <!-- Agent Status Pills -->
+      <div class="hidden sm:flex items-center gap-2">
+        <div class="flex items-center gap-2 px-2.5 py-1 rounded-md bg-bgCard border border-borderSubtle text-xs font-mono">
+          <span class="relative w-2 h-2 rounded-full bg-emeraldNeon pulse-dot"></span>
+          <span class="text-slate-300 font-semibold">ORION</span>
+          <span class="text-emeraldNeon">actif</span>
+        </div>
+        <div class="flex items-center gap-2 px-2.5 py-1 rounded-md bg-bgCard border border-borderSubtle text-xs font-mono">
+          <span class="relative w-2 h-2 rounded-full bg-cyanNeon pulse-dot"></span>
+          <span class="text-slate-300 font-semibold">HERMES</span>
+          <span class="text-cyanNeon" id="hermesStatusText">lit</span>
+        </div>
+      </div>
+
+      <!-- Compute Budget Bar -->
+      <div class="hidden xl:flex items-center gap-3 px-3 py-1 rounded-md bg-bgCard border border-borderSubtle text-xs font-mono">
+        <span class="text-slate-400">BUDGET IA</span>
+        <span class="text-white font-semibold" id="budgetHeaderDisplay">31,40 $</span>
+        <span class="text-slate-500">sur 50 $ · ~18 jours</span>
+        <div class="w-20 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+          <div id="budgetHeaderBar" class="h-full bg-emeraldNeon rounded-full transition-all duration-500" style="width: 62.8%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Controls & Telemetry -->
+    <div class="flex items-center gap-3 lg:gap-5">
+      <button id="simulateScanBtn" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emeraldNeon/15 hover:bg-emeraldNeon/25 border border-emeraldNeon/50 text-emeraldNeon text-xs font-mono font-semibold transition-all active:scale-95 glow-emerald cursor-pointer">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+        <span>SIMULER UN CYCLE IA</span>
+      </button>
+
+      <div class="hidden md:flex items-center gap-4 text-right font-mono">
+        <div>
+          <div class="text-[10px] text-slate-500 uppercase">CYCLE</div>
+          <div class="text-xs font-bold text-slate-200" id="cycleCounter">12.647</div>
+        </div>
+        <div>
+          <div class="text-[10px] text-slate-500 uppercase">DÉCISIONS</div>
+          <div class="text-xs font-bold text-amberNeon cursor-pointer hover:underline" onclick="switchTab('decisions')" id="headerDecisionCount">2</div>
+        </div>
+      </div>
+
+      <div class="font-mono text-sm lg:text-base font-bold text-white bg-bgCard px-2.5 py-1 rounded-md border border-borderSubtle">
+        <span id="liveClock">23:39:38</span> <span class="text-[10px] text-slate-500 font-normal">CET</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- LIVE EVENT TICKER -->
+  <div class="bg-[#0b1017] border-b border-borderSubtle h-8 flex items-center overflow-hidden relative">
+    <div class="bg-emeraldNeon/15 border-r border-emeraldNeon/30 px-3 h-full flex items-center gap-2 z-10 shrink-0">
+      <span class="w-2 h-2 rounded-full bg-emeraldNeon animate-pulse"></span>
+      <span class="font-mono text-[11px] font-bold text-emeraldNeon tracking-wider">EN DIRECT</span>
+    </div>
+    <div class="overflow-hidden flex-1 relative">
+      <div class="ticker-track font-mono text-xs text-slate-300 gap-8 items-center" id="liveTickerContent">
+        <!-- Populated dynamically by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN WORKSPACE -->
+  <div class="flex flex-1 relative">
+    
+    <!-- LEFT SIDEBAR -->
+    <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-40 w-56 bg-bgPanel border-r border-borderSubtle flex flex-col justify-between transform -translate-x-full lg:translate-x-0 transition-transform duration-200 pt-14 lg:pt-0">
+      <div class="p-3 space-y-5 overflow-y-auto">
+        <!-- Group: VUE GÉNÉRALE -->
+        <div>
+          <div class="px-2.5 mb-1.5 text-[10px] font-mono font-semibold tracking-wider text-slate-500 uppercase">Général</div>
+          <button onclick="switchTab('overview')" data-tab="overview" class="nav-btn w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-medium bg-bgHover text-emeraldNeon border border-emeraldNeon/30 transition-colors cursor-pointer">
+            <span class="flex items-center gap-2.5">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+              Vue d'ensemble
+            </span>
+          </button>
+        </div>
+
+        <!-- Group: CERVEAU IA -->
+        <div>
+          <div class="px-2.5 mb-1.5 text-[10px] font-mono font-semibold tracking-wider text-slate-500 uppercase">Cerveau IA</div>
+          <div class="space-y-1">
+            <button onclick="switchTab('lab')" data-tab="lab" class="nav-btn w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-bgCard transition-colors cursor-pointer">
+              <span class="flex items-center gap-2.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+                Laboratoire
+              </span>
+              <span class="w-1.5 h-1.5 rounded-full bg-emeraldNeon"></span>
+            </button>
+
+            <button onclick="switchTab('research')" data-tab="research" class="nav-btn w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-bgCard transition-colors cursor-pointer">
+              <span class="flex items-center gap-2.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                Recherche
+              </span>
+              <span class="w-1.5 h-1.5 rounded-full bg-cyanNeon"></span>
+            </button>
+
+            <button onclick="switchTab('strategies')" data-tab="strategies" class="nav-btn w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-bgCard transition-colors cursor-pointer">
+              <span class="flex items-center gap-2.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/></svg>
+                Stratégies
+              </span>
+              <span class="font-mono text-[10px] text-slate-500" id="sidebarStratCount">12</span>
+            </button>
+
+            <button onclick="switchTab('knowledge')" data-tab="knowledge" class="nav-btn w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-bgCard transition-colors cursor-pointer">
+              <span class="flex items-center gap-2.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                Base de savoir
+              </span>
+              <span class="px-1.5 py-0.5 text-[10px] font-mono font-bold rounded bg-amberNeon/20 text-amberNeon">6</span>
+            </button>
+
+            <button onclick="switchTab('agents')" data-tab="agents" class="nav-btn w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-bgCard transition-colors cursor-pointer">
+              <span class="flex items-center gap-2.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                Salle des agents
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Group: CAPITAL & EXÉCUTION -->
+        <div>
+          <div class="px-2.5 mb-1.5 text-[10px] font-mono font-semibold tracking-wider text-slate-500 uppercase">Capital</div>
+          <div class="space-y-1">
+            <button onclick="switchTab('paper')" data-tab="paper" class="nav-btn w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-bgCard transition-colors cursor-pointer">
+              <span class="flex items-center gap-2.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                Paper & Live
+              </span>
+            </button>
+
+            <button onclick="switchTab('decisions')" data-tab="decisions" class="nav-btn w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-bgCard transition-colors cursor-pointer">
+              <span class="flex items-center gap-2.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                Décisions
+              </span>
+              <span id="sidebarDecisionBadge" class="px-1.5 py-0.5 text-[10px] font-mono font-bold rounded bg-amberNeon text-black">2</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Group: SYSTÈME -->
+        <div>
+          <div class="px-2.5 mb-1.5 text-[10px] font-mono font-semibold tracking-wider text-slate-500 uppercase">Système</div>
+          <div class="space-y-1">
+            <button onclick="switchTab('costs')" data-tab="costs" class="nav-btn w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-bgCard transition-colors cursor-pointer">
+              <span class="flex items-center gap-2.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                Coûts & API
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Sidebar Status -->
+      <div class="p-3 border-t border-borderSubtle bg-[#0a0e14] font-mono text-[11px]">
+        <div class="flex items-center gap-2 text-emeraldNeon mb-1">
+          <span class="w-2 h-2 rounded-full bg-emeraldNeon animate-ping"></span>
+          <span>cerveau actif</span>
+        </div>
+        <div class="text-slate-500">cycle <span id="sidebarCycle" class="text-slate-300">12.647</span> · ORION</div>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="flex-1 p-3 lg:p-5 overflow-y-auto space-y-4 cyber-grid">
+
+      <!-- TOP KPI CARDS ROW (Always visible for persistent context) -->
+      <section class="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-7 gap-2.5 lg:gap-3">
+        <!-- KPI 1: Imaginées -->
+        <div class="bg-bgCard border border-borderSubtle rounded-xl p-3 flex flex-col justify-between hover:border-slate-700 transition-colors">
+          <div class="text-[10px] font-mono uppercase tracking-wider text-slate-400">IMAGINÉES</div>
+          <div class="text-2xl lg:text-3xl font-mono font-bold text-white my-1" id="kpiImagined">1.308</div>
+          <div class="text-[11px] text-slate-500">stratégies générées</div>
+        </div>
+
+        <!-- KPI 2: Testées -->
+        <div class="bg-bgCard border border-borderSubtle rounded-xl p-3 flex flex-col justify-between hover:border-slate-700 transition-colors">
+          <div class="text-[10px] font-mono uppercase tracking-wider text-slate-400">TESTÉES</div>
+          <div class="text-2xl lg:text-3xl font-mono font-bold text-white my-1" id="kpiTested">1.251</div>
+          <div class="text-[11px] text-slate-500"><span id="kpiTestedPct">96%</span> des imaginées</div>
+        </div>
+
+        <!-- KPI 3: Filtrées -->
+        <div class="bg-bgCard border border-borderSubtle rounded-xl p-3 flex flex-col justify-between hover:border-amberNeon/40 transition-colors">
+          <div class="flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-wider text-amberNeon">
+            <span class="w-1.5 h-1.5 rounded-full bg-amberNeon"></span>
+            AU TAMIS
+          </div>
+          <div class="text-2xl lg:text-3xl font-mono font-bold text-white my-1" id="kpiFiltered">343</div>
+          <div class="text-[11px] text-slate-500">27% des testées</div>
+        </div>
+
+        <!-- KPI 4: Validées -->
+        <div class="bg-bgCard border border-borderSubtle rounded-xl p-3 flex flex-col justify-between hover:border-emeraldNeon/40 transition-colors">
+          <div class="flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-wider text-emeraldNeon">
+            <span class="w-1.5 h-1.5 rounded-full bg-emeraldNeon"></span>
+            VALIDÉES
+          </div>
+          <div class="text-2xl lg:text-3xl font-mono font-bold text-emeraldNeon my-1" id="kpiValidated">12</div>
+          <div class="text-[11px] text-slate-500">3,5% après filtrage</div>
+        </div>
+
+        <!-- KPI 5: Paper Trading -->
+        <div class="bg-bgCard border border-borderSubtle rounded-xl p-3 flex flex-col justify-between hover:border-cyanNeon/40 transition-colors">
+          <div class="text-[10px] font-mono uppercase tracking-wider text-cyanNeon">EN PAPER</div>
+          <div class="text-2xl lg:text-3xl font-mono font-bold text-white my-1" id="kpiPaper">3</div>
+          <div>
+            <div class="text-[11px] text-slate-400 mb-1">jour 9 sur 21</div>
+            <div class="w-full h-1 bg-slate-800 rounded-full overflow-hidden">
+              <div class="h-full bg-emeraldNeon rounded-full" style="width: 43%"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- KPI 6: Live -->
+        <div class="bg-bgCard border border-borderSubtle rounded-xl p-3 flex flex-col justify-between">
+          <div class="text-[10px] font-mono uppercase tracking-wider text-slate-400">EN LIVE</div>
+          <div class="text-xl font-mono font-bold text-slate-600 my-1">—</div>
+          <button onclick="switchTab('decisions')" class="w-full text-left px-2 py-1 rounded bg-[#0c1016] border border-borderSubtle hover:border-amberNeon/50 text-[10px] font-mono text-amberNeon transition-colors cursor-pointer">
+            en attente de votre OK →
+          </button>
+        </div>
+
+        <!-- KPI 7: Budget IA -->
+        <div class="col-span-2 sm:col-span-1 bg-bgCard border border-borderSubtle rounded-xl p-3 flex flex-col justify-between">
+          <div class="text-[10px] font-mono uppercase tracking-wider text-slate-400">BUDGET IA</div>
+          <div class="flex items-baseline gap-1 my-1 font-mono">
+            <span class="text-2xl lg:text-3xl font-bold text-white" id="kpiBudget">31$</span>
+            <span class="text-xs text-slate-500">/50$</span>
+          </div>
+          <div>
+            <div class="text-[10px] text-slate-500 mb-1">~18 jours à ce rythme</div>
+            <div class="w-full h-1 bg-slate-800 rounded-full overflow-hidden">
+              <div id="kpiBudgetBar" class="h-full bg-emeraldNeon rounded-full transition-all duration-500" style="width: 62%"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 1: VUE D'ENSEMBLE (NEURAL CORE VISUALIZATION) -->
+      <div id="view-overview" class="tab-view space-y-4">
+        <div class="bg-bgPanel border border-borderSubtle rounded-xl p-3 lg:p-4 relative overflow-hidden">
+          
+          <!-- Core Header -->
+          <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-borderSubtle/70">
+            <div class="flex flex-wrap items-center gap-2 text-xs font-mono">
+              <span class="w-2 h-2 rounded-full bg-emeraldNeon animate-pulse"></span>
+              <span class="font-bold text-white tracking-wide">NOYAU-CERVEAU</span>
+              <span class="text-slate-600">·</span>
+              <span class="text-slate-400">aujourd'hui</span>
+              <span class="text-slate-600">·</span>
+              <span class="text-slate-400 hidden sm:inline">les sources entrent, les stratégies et variantes en sortent</span>
+            </div>
+
+            <div class="flex items-center gap-2 font-mono text-[11px]">
+              <span class="px-2 py-0.5 rounded bg-emeraldNeon/10 text-emeraldNeon border border-emeraldNeon/30">
+                ● CERVEAU ACTIF
+              </span>
+            </div>
+          </div>
+
+          <!-- Current Active Task Banner -->
+          <div class="my-2.5 flex justify-center">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-bgCard border border-borderSubtle font-mono text-xs">
+              <span class="text-amberNeon font-bold">EN COURS</span>
+              <span class="text-slate-300" id="activeTaskBanner">le labo teste Range-GC 16 · GC · 4h (Sharpe: 2.14)</span>
+            </div>
+          </div>
+
+          <!-- 3-COLUMN INTERACTIVE NEURAL CORE -->
+          <div class="relative grid grid-cols-1 lg:grid-cols-12 gap-4 items-center min-h-[400px] lg:min-h-[430px] my-2" id="neuralStageContainer">
+            
+            <!-- SVG BEZIER FLOW OVERLAY (Desktop) -->
+            <svg id="flowLinesSvg" class="hidden lg:block absolute inset-0 w-full h-full pointer-events-none z-10" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="gradCyan" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#00b0ff" stop-opacity="0.6" />
+                  <stop offset="100%" stop-color="#00e676" stop-opacity="0.2" />
+                </linearGradient>
+                <linearGradient id="gradEmerald" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#00e676" stop-opacity="0.2" />
+                  <stop offset="100%" stop-color="#00e676" stop-opacity="0.8" />
+                </linearGradient>
+              </defs>
+              <!-- Paths drawn dynamically via JS -->
+            </svg>
+
+            <!-- LEFT COLUMN: SOURCES AUJOURD'HUI -->
+            <div class="lg:col-span-3 space-y-2.5 z-20" id="sourcesColumn">
+              <div class="flex items-center justify-between px-1 font-mono text-[11px] text-slate-400">
+                <span>SOURCES AUJOURD'HUI</span>
+                <span class="text-white font-bold">Σ <span id="sourcesTotal">100</span></span>
+              </div>
+
+              <!-- Source 1: YouTube -->
+              <div data-source="youtube" onclick="triggerSinglePulse('youtube')" class="source-card bg-bgCard/90 backdrop-blur border border-borderSubtle hover:border-cyanNeon/60 rounded-lg p-2.5 cursor-pointer transition-all group">
+                <div class="flex items-center justify-between mb-1.5">
+                  <span class="font-mono text-xs font-semibold text-slate-300 group-hover:text-cyanNeon">YOUTUBE</span>
+                  <span class="font-mono text-base font-bold text-white" id="srcYoutube">45</span>
+                </div>
+                <svg class="w-full h-5" viewBox="0 0 120 20" fill="none">
+                  <path d="M0 16 L15 15 L30 16 L45 12 L60 15 L75 14 L90 15 L105 9 L120 4" stroke="#00b0ff" stroke-width="1.5" fill="none"/>
+                </svg>
+              </div>
+
+              <!-- Source 2: GitHub -->
+              <div data-source="github" onclick="triggerSinglePulse('github')" class="source-card bg-bgCard/90 backdrop-blur border border-borderSubtle hover:border-cyanNeon/60 rounded-lg p-2.5 cursor-pointer transition-all group">
+                <div class="flex items-center justify-between mb-1.5">
+                  <span class="font-mono text-xs font-semibold text-slate-300 group-hover:text-cyanNeon">GITHUB</span>
+                  <span class="font-mono text-base font-bold text-white" id="srcGithub">23</span>
+                </div>
+                <svg class="w-full h-5" viewBox="0 0 120 20" fill="none">
+                  <path d="M0 17 L20 16 L35 11 L50 16 L70 15 L85 17 L105 14 L120 11" stroke="#00b0ff" stroke-width="1.5" fill="none"/>
+                </svg>
+              </div>
+
+              <!-- Source 3: ArXiv -->
+              <div data-source="arxiv" onclick="triggerSinglePulse('arxiv')" class="source-card bg-bgCard/90 backdrop-blur border border-borderSubtle hover:border-cyanNeon/60 rounded-lg p-2.5 cursor-pointer transition-all group">
+                <div class="flex items-center justify-between mb-1.5">
+                  <span class="font-mono text-xs font-semibold text-slate-300 group-hover:text-cyanNeon">ARXIV</span>
+                  <span class="font-mono text-base font-bold text-white" id="srcArxiv">12</span>
+                </div>
+                <svg class="w-full h-5" viewBox="0 0 120 20" fill="none">
+                  <path d="M0 16 L18 14 L32 17 L55 15 L72 9 L90 16 L108 15 L120 6" stroke="#00b0ff" stroke-width="1.5" fill="none"/>
+                </svg>
+              </div>
+
+              <!-- Source 4: Web -->
+              <div data-source="web" onclick="triggerSinglePulse('web')" class="source-card bg-bgCard/90 backdrop-blur border border-borderSubtle hover:border-cyanNeon/60 rounded-lg p-2.5 cursor-pointer transition-all group">
+                <div class="flex items-center justify-between mb-1.5">
+                  <span class="font-mono text-xs font-semibold text-slate-300 group-hover:text-cyanNeon">WEB & BLOGS</span>
+                  <span class="font-mono text-base font-bold text-white" id="srcWeb">20</span>
+                </div>
+                <svg class="w-full h-5" viewBox="0 0 120 20" fill="none">
+                  <path d="M0 15 L25 16 L45 14 L65 16 L85 8 L100 15 L120 12" stroke="#00b0ff" stroke-width="1.5" fill="none"/>
+                </svg>
+              </div>
+            </div>
+
+            <!-- CENTER COLUMN: 3D PARTICLE NEURAL GLOBE -->
+            <div class="lg:col-span-6 flex flex-col items-center justify-center relative h-[320px] sm:h-[370px] z-20" id="globeWrapper">
+              <!-- HUD Corner Brackets -->
+              <div class="absolute top-2 left-6 w-3 h-3 border-t-2 border-l-2 border-slate-700"></div>
+              <div class="absolute top-2 right-6 w-3 h-3 border-t-2 border-r-2 border-slate-700"></div>
+              <div class="absolute bottom-2 left-6 w-3 h-3 border-b-2 border-l-2 border-slate-700"></div>
+              <div class="absolute bottom-2 right-6 w-3 h-3 border-b-2 border-r-2 border-slate-700"></div>
+
+              <canvas id="neuralGlobeCanvas" class="w-full h-full cursor-grab active:cursor-grabbing"></canvas>
+
+              <!-- Bottom Reader Status -->
+              <div class="absolute bottom-2 px-3 py-1 rounded bg-bgPanel/90 border border-borderSubtle font-mono text-[11px] text-center max-w-[90%] truncate">
+                <span class="text-cyanNeon font-bold">LECTURE</span>
+                <span class="text-slate-300 ml-1.5" id="readingPaperLabel">Momentum temporel sur contrats à terme · min 31 sur 39</span>
+              </div>
+            </div>
+
+            <!-- RIGHT COLUMN: SORTIE AUJOURD'HUI -->
+            <div class="lg:col-span-3 space-y-3 z-20" id="outputsColumn">
+              <div class="flex items-center justify-between px-1 font-mono text-[11px] text-slate-400">
+                <span>PRODUCTION DU JOUR</span>
+                <span class="text-emeraldNeon">ACTIF</span>
+              </div>
+
+              <!-- Output 1: Imaginées -->
+              <div class="output-card bg-bgCard/90 backdrop-blur border border-borderSubtle hover:border-slate-600 rounded-lg p-3 transition-all">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="font-mono text-xs font-semibold text-slate-300">IMAGINÉES</span>
+                  <span class="font-mono text-xl font-bold text-white" id="outImagined">103</span>
+                </div>
+                <svg class="w-full h-5 mb-1" viewBox="0 0 120 20" fill="none">
+                  <path d="M0 17 L20 17 L40 16 L60 17 L80 15 L100 12 L120 5" stroke="#94a3b8" stroke-width="1.5" fill="none"/>
+                </svg>
+                <div class="text-[11px] font-mono text-slate-500">recettes imaginées</div>
+              </div>
+
+              <!-- Output 2: Variantes testées -->
+              <div class="output-card bg-bgCard/90 backdrop-blur border border-borderSubtle hover:border-amberNeon/50 rounded-lg p-3 transition-all">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="font-mono text-xs font-semibold text-slate-300">VARIANTES TESTÉES</span>
+                  <span class="font-mono text-xl font-bold text-white" id="outTested">533</span>
+                </div>
+                <svg class="w-full h-5 mb-1" viewBox="0 0 120 20" fill="none">
+                  <path d="M0 18 L25 17 L45 14 L65 16 L85 11 L105 9 L120 3" stroke="#ffab00" stroke-width="1.5" fill="none"/>
+                </svg>
+                <div class="text-[11px] font-mono text-slate-500">backtests dans le labo</div>
+              </div>
+
+              <!-- Output 3: Validées -->
+              <div onclick="switchTab('decisions')" class="output-card bg-bgCard/90 backdrop-blur border border-emeraldNeon/30 hover:border-emeraldNeon rounded-lg p-3 cursor-pointer transition-all glow-emerald">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="font-mono text-xs font-semibold text-emeraldNeon">VALIDÉES</span>
+                  <span class="font-mono text-xl font-bold text-emeraldNeon" id="outValidated">2</span>
+                </div>
+                <svg class="w-full h-5 mb-1" viewBox="0 0 120 20" fill="none">
+                  <path d="M0 18 L50 18 L65 10 L95 10 L110 4 L120 4" stroke="#00e676" stroke-width="1.8" fill="none"/>
+                </svg>
+                <div class="text-[11px] font-mono text-emeraldNeon/80 flex items-center justify-between">
+                  <span>recettes approuvées</span>
+                  <span>Inspecter →</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- BOTTOM TIMELINE HISTOGRAM -->
+          <div class="pt-3 border-t border-borderSubtle/80">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-2 font-mono text-[11px]">
+              <div class="flex flex-wrap items-center gap-3 lg:gap-4">
+                <span class="flex items-center gap-1.5 text-slate-400"><span class="w-2.5 h-1 bg-cyanNeon inline-block"></span> source / lecture</span>
+                <span class="flex items-center gap-1.5 text-slate-400"><span class="w-2.5 h-1 bg-slate-300 inline-block"></span> recette / variante</span>
+                <span class="flex items-center gap-1.5 text-slate-400"><span class="w-2.5 h-1 bg-amberNeon inline-block"></span> passé le tamis</span>
+                <span class="flex items-center gap-1.5 text-slate-400"><span class="w-2.5 h-1 bg-emeraldNeon inline-block"></span> validée</span>
+                <span class="flex items-center gap-1.5 text-slate-400"><span class="w-2.5 h-1 bg-crimsonNeon inline-block"></span> rejet / erreur</span>
+              </div>
+              <span class="text-slate-500">barres : par minute, 30 dernières minutes</span>
+            </div>
+
+            <div class="flex items-end justify-between gap-1 h-12 bg-[#090d13] p-2 rounded-lg border border-borderSubtle/60" id="timelineHistogram">
+              <!-- Bars populated by JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- QUICK DECISION & LOGS SPLIT ROW -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <!-- Pending Strategy Approval Card -->
+          <div class="bg-bgPanel border border-borderSubtle rounded-xl p-4">
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-amberNeon animate-pulse"></span>
+                <h2 class="font-mono text-xs font-bold uppercase tracking-wider text-white">VALIDATION HUMAINE REQUISE</h2>
+              </div>
+              <span class="font-mono text-xs text-amberNeon" id="pendingBadgeText">2 en attente</span>
+            </div>
+            <div id="overviewDecisionsList" class="space-y-2.5">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+
+          <!-- Live Agent Terminal Log -->
+          <div class="bg-bgPanel border border-borderSubtle rounded-xl p-4 flex flex-col">
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-cyanNeon"></span>
+                <h2 class="font-mono text-xs font-bold uppercase tracking-wider text-white">JOURNAL D'ACTIVITÉ DES AGENTS</h2>
+              </div>
+              <span class="font-mono text-[11px] text-slate-500">FLUX TEMPS RÉEL</span>
+            </div>
+            <div id="agentTerminalLog" class="font-mono text-xs space-y-1.5 max-h-52 overflow-y-auto pr-1">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW 2: DÉCISIONS / VALIDATION -->
+      <div id="view-decisions" class="tab-view hidden space-y-4">
+        <div class="bg-bgPanel border border-borderSubtle rounded-xl p-4 lg:p-5">
+          <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-borderSubtle">
+            <div>
+              <h2 class="font-mono text-base font-bold text-white">FILE DE DÉCISION & VALIDATION HUMAINE</h2>
+              <p class="text-xs text-slate-400 mt-0.5">Aucune stratégie ne passe en Paper Trading ou en Live sans votre approbation explicite.</p>
+            </div>
+            <button onclick="switchTab('overview')" class="px-3 py-1.5 rounded-lg bg-bgCard border border-borderSubtle text-xs font-mono text-slate-300 hover:text-white cursor-pointer">
+              ← Retour au Noyau
+            </button>
+          </div>
+
+          <div id="fullDecisionsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW 3: STRATÉGIES & LABORATOIRE -->
+      <div id="view-strategies" class="tab-view hidden space-y-4">
+        <div class="bg-bgPanel border border-borderSubtle rounded-xl p-4 lg:p-5">
+          <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-borderSubtle">
+            <div>
+              <h2 class="font-mono text-base font-bold text-white">STRATÉGIES VALIDÉES & EN PAPER TRADING</h2>
+              <p class="text-xs text-slate-400 mt-0.5">Performances issues des backtests walk-forward sur 5 ans de données historiques.</p>
+            </div>
+            <button onclick="switchTab('overview')" class="px-3 py-1.5 rounded-lg bg-bgCard border border-borderSubtle text-xs font-mono text-slate-300 hover:text-white cursor-pointer">
+              ← Retour au Noyau
+            </button>
+          </div>
+
+          <div class="overflow-x-auto mt-4">
+            <table class="w-full text-left font-mono text-xs">
+              <thead>
+                <tr class="border-b border-borderSubtle text-slate-500 uppercase text-[11px]">
+                  <th class="py-2.5 px-3">Stratégie</th>
+                  <th class="py-2.5 px-3">Actif / TF</th>
+                  <th class="py-2.5 px-3">Source IA</th>
+                  <th class="py-2.5 px-3">Ratio Sharpe</th>
+                  <th class="py-2.5 px-3">Win Rate</th>
+                  <th class="py-2.5 px-3">Max Drawdown</th>
+                  <th class="py-2.5 px-3">Statut</th>
+                </tr>
+              </thead>
+              <tbody id="strategiesTableBody" class="divide-y divide-borderSubtle/60">
+                <!-- Populated by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW 4: SALLE DES AGENTS & RECHERCHE -->
+      <div id="view-agents" class="tab-view hidden space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Agent ORION -->
+          <div class="bg-bgPanel border border-emeraldNeon/30 rounded-xl p-5 space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <span class="w-3 h-3 rounded-full bg-emeraldNeon animate-ping"></span>
+                <h3 class="font-mono text-base font-bold text-white">AGENT ORION</h3>
+              </div>
+              <span class="px-2 py-0.5 rounded bg-emeraldNeon/15 text-emeraldNeon font-mono text-xs">ORCHESTRATEUR & CODE</span>
+            </div>
+            <p class="text-xs text-slate-400 leading-relaxed">
+              Transforme les hypothèses mathématiques extraites par HERMES en code Python vectorisé, exécute les backtests multi-marchés et applique les filtres anti-surapprentissage (Walk-Forward & Monte Carlo).
+            </p>
+            <div class="bg-bgCard rounded-lg p-3 border border-borderSubtle font-mono text-xs space-y-1.5">
+              <div class="flex justify-between"><span class="text-slate-500">Modèle :</span><span class="text-slate-200">Claude 3.7 Sonnet / Code-Sandbox</span></div>
+              <div class="flex justify-between"><span class="text-slate-500">Tâche actuelle :</span><span class="text-emeraldNeon">Optimisation Range-GC 16</span></div>
+              <div class="flex justify-between"><span class="text-slate-500">Filtre anti-arnaque :</span><span class="text-emeraldNeon">ACTIF (Strict)</span></div>
+            </div>
+          </div>
+
+          <!-- Agent HERMES -->
+          <div class="bg-bgPanel border border-cyanNeon/30 rounded-xl p-5 space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <span class="w-3 h-3 rounded-full bg-cyanNeon animate-ping"></span>
+                <h3 class="font-mono text-base font-bold text-white">AGENT HERMES</h3>
+              </div>
+              <span class="px-2 py-0.5 rounded bg-cyanNeon/15 text-cyanNeon font-mono text-xs">VEILLE & EXTRACTION</span>
+            </div>
+            <p class="text-xs text-slate-400 leading-relaxed">
+              Parcourt en continu ArXiv (finance quantitative), les dépôts GitHub open-source et les transcriptions vidéo pour extraire des signaux exploitables tout en éliminant le bruit marketing.
+            </p>
+            <div class="bg-bgCard rounded-lg p-3 border border-borderSubtle font-mono text-xs space-y-1.5">
+              <div class="flex justify-between"><span class="text-slate-500">Modèle :</span><span class="text-slate-200">Gemini 3 Flash / Browser-Harness</span></div>
+              <div class="flex justify-between"><span class="text-slate-500">Lecture en cours :</span><span class="text-cyanNeon">ArXiv:2502.11842 (Orderflow)</span></div>
+              <div class="flex justify-between"><span class="text-slate-500">Documents analysés :</span><span class="text-white">100 aujourd'hui</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toastContainer" class="fixed bottom-4 right-4 z-50 space-y-2 pointer-events-none"></div>
+
+  <script>
+    // ==========================================
+    // 1. STATE & MOCK DATA (IN FRENCH)
+    // ==========================================
+    const state = {
+      cycle: 12647,
+      imagined: 1308,
+      tested: 1251,
+      filtered: 343,
+      validated: 12,
+      paper: 3,
+      budgetSpent: 31.40,
+      budgetTotal: 50.00,
+      sources: {
+        youtube: 45,
+        github: 23,
+        arxiv: 12,
+        web: 20
+      },
+      todayOutputs: {
+        imagined: 103,
+        tested: 533,
+        validated: 2
+      },
+      pendingDecisions: [
+        {
+          id: 'STRAT-894',
+          name: 'Range-GC Breakout Volatilité v4',
+          asset: 'Or Futures (GC) · 4H',
+          source: 'ArXiv:2411.09821',
+          sharpe: '2.18',
+          winRate: '61.4%',
+          drawdown: '-6.8%',
+          profitFactor: '1.94',
+          summary: 'Exploite la compression de volatilité asiatique avant l’ouverture de Londres avec filtre de flux d’ordres.'
+        },
+        {
+          id: 'STRAT-902',
+          name: 'Mean-Reversion Orderbook Imbalance',
+          asset: 'NASDAQ-100 (NQ) · 15M',
+          source: 'GitHub: quant-orderflow-rs',
+          sharpe: '1.96',
+          winRate: '66.2%',
+          drawdown: '-5.1%',
+          profitFactor: '1.81',
+          summary: 'Détecte les déséquilibres temporaires du carnet d’ordres lors des annonces macroéconomiques mineures.'
+        }
+      ],
+      validatedStrategies: [
+        { name: 'Momentum Temporel Index-Futures', asset: 'ES / NQ · 1H', source: 'ArXiv Quantitative', sharpe: '2.31', winRate: '58.9%', drawdown: '-7.2%', status: 'EN PAPER (J9/21)' },
+        { name: 'Liquidité Nocturne EUR/USD', asset: 'EURUSD · 30M', source: 'GitHub AlgoLab', sharpe: '1.89', winRate: '64.0%', drawdown: '-4.9%', status: 'EN PAPER (J14/21)' },
+        { name: 'Divergence RSI-Volume Crypto', asset: 'BTCUSDT · 4H', source: 'Web / Recherche', sharpe: '2.05', winRate: '55.3%', drawdown: '-9.4%', status: 'EN PAPER (J4/21)' },
+        { name: 'Arbitrage Spread Taux Courts', asset: 'ZN / ZB · 1D', source: 'ArXiv Econometrics', sharpe: '1.78', winRate: '69.1%', drawdown: '-3.6%', status: 'VALIDÉE (EN RÉSERVE)' }
+      ],
+      tickerMessages: [
+        { time: '23:39:12', tag: 'REJETÉ', color: 'text-crimsonNeon', text: '"cette stratégie gagne toujours" — promesse de gain fixe détectée (arnaque)' },
+        { time: '23:39:24', tag: 'LECTURE', color: 'text-cyanNeon', text: 'HERMES ouvre un article ArXiv · texte principal 2.140 mots' },
+        { time: '23:39:31', tag: 'RECHERCHE', color: 'text-cyanNeon', text: 'Exploration GitHub : "orderflow-imbalance-backtest"' },
+        { time: '23:39:38', tag: 'LABO', color: 'text-amberNeon', text: 'ORION exécute 48 variantes sur Range-GC 16 · 4h' },
+        { time: '23:39:45', tag: 'VALIDÉ', color: 'text-emeraldNeon', text: 'STRAT-894 franchit le test Monte Carlo (Sharpe 2.18 > 1.80)' }
+      ],
+      logs: [
+        { time: '23:39:38', agent: 'ORION', msg: 'Backtest terminé : Range-GC 16 (4h) -> Sharpe 2.18 [PASS]', type: 'success' },
+        { time: '23:39:29', agent: 'HERMES', msg: 'Analyse du dépôt GitHub "orderflow-imbalance" (3 fichiers extraits)', type: 'info' },
+        { time: '23:39:15', agent: 'FILTRE', msg: 'Rejet automatique : "100% Winrate Martingale Bot" (risque de ruine)', type: 'error' },
+        { time: '23:38:54', agent: 'HERMES', msg: 'Lecture papier ArXiv : Momentum temporel sur contrats à terme', type: 'info' },
+        { time: '23:38:40', agent: 'ORION', msg: 'Génération de 12 variantes paramétriques pour NQ-15m', type: 'warn' }
+      ],
+      sampleEvents: [
+        { agent: 'HERMES', msg: 'Extraction d’une nouvelle vidéo YouTube : "VWAP Institutional Zones"', type: 'info', src: 'youtube' },
+        { agent: 'ORION', msg: 'Simulation Monte Carlo (1.000 tirages) réussie sur variante #412', type: 'success', src: 'arxiv' },
+        { agent: 'FILTRE', msg: 'Rejet : "Doublez votre capital en 48h" — biais de survie détecté', type: 'error', src: 'web' },
+        { agent: 'HERMES', msg: 'Nouveau papier ArXiv indexé : "Microstructure & Latence Carnet"', type: 'info', src: 'arxiv' },
+        { agent: 'ORION', msg: '24 nouvelles variantes testées sur contrat S&P 500 (ES)', type: 'warn', src: 'github' }
+      ]
+    };
+
+    // ==========================================
+    // 2. CLOCK & TICKER INITIALIZATION
+    // ==========================================
+    function updateClock() {
+      const now = new Date();
+      const timeStr = now.toTimeString().split(' ')[0];
+      document.getElementById('liveClock').textContent = timeStr;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    function renderTicker() {
+      const container = document.getElementById('liveTickerContent');
+      const itemsHtml = state.tickerMessages.map(item => `
+        <span class="inline-flex items-center gap-2">
+          <span class="text-slate-500">${item.time}</span>
+          <span class="font-bold ${item.color}">${item.tag}</span>
+          <span>${item.text}</span>
+          <span class="text-slate-700 mx-2">•</span>
+        </span>
+      `).join('');
+      // Duplicate for seamless infinite loop
+      container.innerHTML = itemsHtml + itemsHtml;
+    }
+
+    // ==========================================
+    // 3. UI RENDERING FUNCTIONS
+    // ==========================================
+    function formatNum(num) {
+      return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+
+    function updateKPIs() {
+      document.getElementById('kpiImagined').textContent = formatNum(state.imagined);
+      document.getElementById('kpiTested').textContent = formatNum(state.tested);
+      document.getElementById('kpiFiltered').textContent = formatNum(state.filtered);
+      document.getElementById('kpiValidated').textContent = formatNum(state.validated);
+      document.getElementById('kpiPaper').textContent = state.paper;
+      document.getElementById('kpiTestedPct').textContent = Math.round((state.tested / state.imagined) * 100) + '%';
+
+      document.getElementById('cycleCounter').textContent = formatNum(state.cycle);
+      document.getElementById('sidebarCycle').textContent = formatNum(state.cycle);
+
+      // Budget
+      const budgetFormatted = state.budgetSpent.toFixed(2).replace('.', ',') + ' $';
+      document.getElementById('budgetHeaderDisplay').textContent = budgetFormatted;
+      document.getElementById('kpiBudget').textContent = Math.round(state.budgetSpent) + '$';
+      const pct = Math.min(100, (state.budgetSpent / state.budgetTotal) * 100);
+      document.getElementById('budgetHeaderBar').style.width = pct + '%';
+      document.getElementById('kpiBudgetBar').style.width = pct + '%';
+
+      // Sources & Outputs
+      document.getElementById('srcYoutube').textContent = state.sources.youtube;
+      document.getElementById('srcGithub').textContent = state.sources.github;
+      document.getElementById('srcArxiv').textContent = state.sources.arxiv;
+      document.getElementById('srcWeb').textContent = state.sources.web;
+      const totalSrc = state.sources.youtube + state.sources.github + state.sources.arxiv + state.sources.web;
+      document.getElementById('sourcesTotal').textContent = totalSrc;
+
+      document.getElementById('outImagined').textContent = state.todayOutputs.imagined;
+      document.getElementById('outTested').textContent = state.todayOutputs.tested;
+      document.getElementById('outValidated').textContent = state.todayOutputs.validated;
+
+      // Decision counts
+      const pendingCount = state.pendingDecisions.length;
+      document.getElementById('headerDecisionCount').textContent = pendingCount;
+      document.getElementById('sidebarDecisionBadge').textContent = pendingCount;
+      document.getElementById('pendingBadgeText').textContent = `${pendingCount} en attente`;
+      document.getElementById('sidebarStratCount').textContent = state.validated;
+    }
+
+    function renderLogs() {
+      const container = document.getElementById('agentTerminalLog');
+      container.innerHTML = state.logs.map(log => {
+        let color = 'text-slate-300';
+        let badge = 'text-cyanNeon';
+        if (log.type === 'success') { color = 'text-emeraldNeon'; badge = 'text-emeraldNeon'; }
+        if (log.type === 'error') { color = 'text-crimsonNeon'; badge = 'text-crimsonNeon'; }
+        if (log.type === 'warn') { color = 'text-amberNeon'; badge = 'text-amberNeon'; }
+
+        return `
+          <div class="flex items-start gap-2 py-1 border-b border-borderSubtle/40">
+            <span class="text-slate-600 shrink-0">${log.time}</span>
+            <span class="font-bold ${badge} shrink-0">[${log.agent}]</span>
+            <span class="${color}">${log.msg}</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderDecisions() {
+      const overviewList = document.getElementById('overviewDecisionsList');
+      const fullContainer = document.getElementById('fullDecisionsContainer');
+
+      if (state.pendingDecisions.length === 0) {
+        const emptyHtml = `
+          <div class="p-4 rounded-lg bg-bgCard border border-borderSubtle text-center font-mono text-xs text-slate-400">
+            Aucune stratégie en attente de validation. Lancez un cycle IA pour découvrir de nouvelles opportunités.
+          </div>
+        `;
+        overviewList.innerHTML = emptyHtml;
+        fullContainer.innerHTML = emptyHtml;
+        return;
+      }
+
+      overviewList.innerHTML = state.pendingDecisions.map(strat => `
+        <div class="bg-bgCard border border-borderSubtle hover:border-amberNeon/40 rounded-lg p-3 transition-all">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+            <div>
+              <span class="font-mono text-[10px] text-amberNeon font-bold">${strat.id}</span>
+              <h4 class="font-mono text-xs font-bold text-white">${strat.name}</h4>
+            </div>
+            <span class="font-mono text-[11px] px-2 py-0.5 rounded bg-emeraldNeon/10 text-emeraldNeon">Sharpe ${strat.sharpe}</span>
+          </div>
+          <div class="flex items-center justify-between text-[11px] font-mono text-slate-400 mb-2.5">
+            <span>${strat.asset}</span>
+            <span>Win: <strong class="text-white">${strat.winRate}</strong> · DD: <strong class="text-crimsonNeon">${strat.drawdown}</strong></span>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="handleDecision('${strat.id}', true)" class="flex-1 py-1.5 px-2.5 rounded bg-emeraldNeon/20 hover:bg-emeraldNeon/30 border border-emeraldNeon/50 text-emeraldNeon font-mono text-[11px] font-semibold transition-colors cursor-pointer">
+              ✓ Approuver (Paper)
+            </button>
+            <button onclick="handleDecision('${strat.id}', false)" class="py-1.5 px-2.5 rounded bg-bgPanel hover:bg-crimsonNeon/20 border border-borderSubtle hover:border-crimsonNeon/50 text-slate-400 hover:text-crimsonNeon font-mono text-[11px] transition-colors cursor-pointer">
+              ✕ Rejeter
+            </button>
+          </div>
+        </div>
+      `).join('');
+
+      fullContainer.innerHTML = state.pendingDecisions.map(strat => `
+        <div class="bg-bgCard border border-borderSubtle rounded-xl p-4 flex flex-col justify-between space-y-4">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="px-2 py-0.5 rounded bg-amberNeon/15 text-amberNeon font-mono text-xs font-bold">${strat.id}</span>
+              <span class="font-mono text-xs text-slate-400">${strat.source}</span>
+            </div>
+            <h3 class="font-mono text-sm font-bold text-white mb-1">${strat.name}</h3>
+            <div class="font-mono text-xs text-cyanNeon mb-3">${strat.asset}</div>
+            <p class="text-xs text-slate-400 leading-relaxed mb-4">${strat.summary}</p>
+
+            <div class="grid grid-cols-4 gap-2 bg-bgPanel p-2.5 rounded-lg border border-borderSubtle font-mono text-center">
+              <div>
+                <div class="text-[10px] text-slate-500">SHARPE</div>
+                <div class="text-xs font-bold text-emeraldNeon">${strat.sharpe}</div>
+              </div>
+              <div>
+                <div class="text-[10px] text-slate-500">WIN RATE</div>
+                <div class="text-xs font-bold text-white">${strat.winRate}</div>
+              </div>
+              <div>
+                <div class="text-[10px] text-slate-500">DRAWDOWN</div>
+                <div class="text-xs font-bold text-crimsonNeon">${strat.drawdown}</div>
+              </div>
+              <div>
+                <div class="text-[10px] text-slate-500">PROFIT F.</div>
+                <div class="text-xs font-bold text-cyanNeon">${strat.profitFactor}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3 pt-2">
+            <button onclick="handleDecision('${strat.id}', true)" class="flex-1 py-2 px-3 rounded-lg bg-emeraldNeon text-black font-mono text-xs font-bold hover:brightness-110 transition-all cursor-pointer">
+              APPROUVER POUR PAPER TRADING
+            </button>
+            <button onclick="handleDecision('${strat.id}', false)" class="py-2 px-3 rounded-lg bg-bgPanel border border-borderSubtle hover:border-crimsonNeon text-slate-300 hover:text-crimsonNeon font-mono text-xs transition-all cursor-pointer">
+              REJETER
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderStrategiesTable() {
+      const tbody = document.getElementById('strategiesTableBody');
+      tbody.innerHTML = state.validatedStrategies.map(s => `
+        <tr class="hover:bg-bgCard/60 transition-colors">
+          <td class="py-3 px-3 font-semibold text-white">${s.name}</td>
+          <td class="py-3 px-3 text-cyanNeon">${s.asset}</td>
+          <td class="py-3 px-3 text-slate-400">${s.source}</td>
+          <td class="py-3 px-3 text-emeraldNeon font-bold">${s.sharpe}</td>
+          <td class="py-3 px-3 text-slate-200">${s.winRate}</td>
+          <td class="py-3 px-3 text-crimsonNeon">${s.drawdown}</td>
+          <td class="py-3 px-3">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emeraldNeon/15 text-emeraldNeon border border-emeraldNeon/30">
+              ${s.status}
+            </span>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function renderHistogram() {
+      const container = document.getElementById('timelineHistogram');
+      const colors = ['#00b0ff', '#cbd5e1', '#ffab00', '#00e676', '#ff3d57'];
+      let barsHtml = '';
+      for (let i = 0; i < 48; i++) {
+        const height = Math.floor(Math.random() * 75) + 15;
+        const color = i > 38 ? colors[Math.floor(Math.random() * colors.length)] : '#1e293b';
+        barsHtml += `<div class="flex-1 rounded-t-sm transition-all duration-300" style="height: ${height}%; background-color: ${color};"></div>`;
+      }
+      container.innerHTML = barsHtml;
+    }
+
+    // ==========================================
+    // 4. INTERACTIVE ACTIONS & NAVIGATION
+    // ==========================================
+    function switchTab(tabName) {
+      // Map secondary tabs to closest built views for seamless experience
+      const viewMap = {
+        overview: 'view-overview',
+        decisions: 'view-decisions',
+        strategies: 'view-strategies',
+        lab: 'view-strategies',
+        paper: 'view-strategies',
+        agents: 'view-agents',
+        research: 'view-agents',
+        knowledge: 'view-agents',
+        costs: 'view-agents'
+      };
+
+      document.querySelectorAll('.tab-view').forEach(el => el.classList.add('hidden'));
+      const targetId = viewMap[tabName] || 'view-overview';
+      document.getElementById(targetId).classList.remove('hidden');
+
+      // Update sidebar active state
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        if (btn.dataset.tab === tabName) {
+          btn.classList.add('bg-bgHover', 'text-emeraldNeon', 'border', 'border-emeraldNeon/30');
+          btn.classList.remove('text-slate-400');
+        } else {
+          btn.classList.remove('bg-bgHover', 'text-emeraldNeon', 'border', 'border-emeraldNeon/30');
+          btn.classList.add('text-slate-400');
+        }
+      });
+
+      // Close mobile sidebar if open
+      document.getElementById('sidebar').classList.add('-translate-x-full');
+
+      if (targetId === 'view-overview') {
+        setTimeout(drawBezierLines, 50);
+      }
+    }
+
+    document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+      document.getElementById('sidebar').classList.toggle('-translate-x-full');
+    });
+
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      const borderColor = type === 'success' ? 'border-emeraldNeon text-emeraldNeon' : 'border-crimsonNeon text-crimsonNeon';
+      toast.className = `bg-bgPanel border ${borderColor} px-4 py-2.5 rounded-lg shadow-xl font-mono text-xs flex items-center gap-2 transition-all transform translate-y-2 opacity-0`;
+      toast.innerHTML = `<span>${type === 'success' ? '●' : '✕'}</span><span>${message}</span>`;
+      container.appendChild(toast);
+
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      });
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0');
+        setTimeout(() => toast.remove(), 300);
+      }, 3200);
+    }
+
+    function handleDecision(id, approved) {
+      const idx = state.pendingDecisions.findIndex(s => s.id === id);
+      if (idx === -1) return;
+      const strat = state.pendingDecisions[idx];
+      state.pendingDecisions.splice(idx, 1);
+
+      const nowStr = new Date().toTimeString().split(' ')[0];
+
+      if (approved) {
+        state.paper += 1;
+        state.validatedStrategies.unshift({
+          name: strat.name,
+          asset: strat.asset,
+          source: strat.source,
+          sharpe: strat.sharpe,
+          winRate: strat.winRate,
+          drawdown: strat.drawdown,
+          status: 'EN PAPER (J1/21)'
+        });
+        state.logs.unshift({
+          time: nowStr,
+          agent: 'UTILISATEUR',
+          msg: `Stratégie ${strat.id} (${strat.name}) approuvée pour Paper Trading`,
+          type: 'success'
+        });
+        showToast(`${strat.id} déployée en Paper Trading !`, 'success');
+      } else {
+        state.logs.unshift({
+          time: nowStr,
+          agent: 'UTILISATEUR',
+          msg: `Stratégie ${strat.id} rejetée et archivée`,
+          type: 'error'
+        });
+        showToast(`${strat.id} rejetée.`, 'error');
+      }
+
+      updateKPIs();
+      renderDecisions();
+      renderLogs();
+      renderStrategiesTable();
+    }
+
+    // ==========================================
+    // 5. SIMULATION ENGINE & DATA PACKETS
+    // ==========================================
+    let activePackets = [];
+
+    function triggerSinglePulse(sourceKey) {
+      state.sources[sourceKey] += 1;
+      state.cycle += 1;
+      state.imagined += 1;
+      state.tested += Math.floor(Math.random() * 4) + 2;
+      state.todayOutputs.imagined += 1;
+      state.todayOutputs.tested += 3;
+      state.budgetSpent = Math.min(state.budgetTotal, state.budgetSpent + 0.08);
+
+      // Spawn visual packet from source to center, then center to output
+      const sourceIndex = ['youtube', 'github', 'arxiv', 'web'].indexOf(sourceKey);
+      if (sourceIndex !== -1) {
+        activePackets.push({
+          stage: 'in',
+          index: sourceIndex,
+          progress: 0,
+          speed: 0.025,
+          color: '#00b0ff'
+        });
+      }
+
+      // Add log entry
+      const ev = state.sampleEvents[Math.floor(Math.random() * state.sampleEvents.length)];
+      const nowStr = new Date().toTimeString().split(' ')[0];
+      state.logs.unshift({
+        time: nowStr,
+        agent: ev.agent,
+        msg: ev.msg,
+        type: ev.type
+      });
+      if (state.logs.length > 25) state.logs.pop();
+
+      document.getElementById('activeTaskBanner').textContent = ev.msg;
+      globePulseBoost = 1.8;
+
+      updateKPIs();
+      renderLogs();
+      renderHistogram();
+    }
+
+    document.getElementById('simulateScanBtn').addEventListener('click', () => {
+      const keys = ['youtube', 'github', 'arxiv', 'web'];
+      keys.forEach((k, i) => {
+        setTimeout(() => triggerSinglePulse(k), i * 180);
+      });
+      showToast('Cycle IA complet déclenché (ORION + HERMES)', 'success');
+    });
+
+    // Periodic ambient activity
+    setInterval(() => {
+      const keys = ['youtube', 'github', 'arxiv', 'web'];
+      const randomKey = keys[Math.floor(Math.random() * keys.length)];
+      triggerSinglePulse(randomKey);
+    }, 6500);
+
+    // ==========================================
+    // 6. SVG BEZIER FLOW LINES + PACKET ANIMATION
+    // ==========================================
+    let bezierPathsIn = [];
+    let bezierPathsOut = [];
+
+    function drawBezierLines() {
+      const svg = document.getElementById('flowLinesSvg');
+      const container = document.getElementById('neuralStageContainer');
+      if (!svg || !container || window.innerWidth < 1024) return;
+
+      const cRect = container.getBoundingClientRect();
+      const globeEl = document.getElementById('globeWrapper').getBoundingClientRect();
+      const centerX = (globeEl.left - cRect.left) + globeEl.width / 2;
+      const centerY = (globeEl.top - cRect.top) + globeEl.height / 2;
+
+      const sourceCards = document.querySelectorAll('.source-card');
+      const outputCards = document.querySelectorAll('.output-card');
+
+      let pathsMarkup = `
+        <defs>
+          <linearGradient id="gradCyan" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#00b0ff" stop-opacity="0.45" />
+            <stop offset="100%" stop-color="#00e676" stop-opacity="0.15" />
+          </linearGradient>
+          <linearGradient id="gradEmerald" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#00e676" stop-opacity="0.15" />
+            <stop offset="100%" stop-color="#00e676" stop-opacity="0.55" />
+          </linearGradient>
+        </defs>
+      `;
+
+      bezierPathsIn = [];
+      sourceCards.forEach((card, idx) => {
+        const r = card.getBoundingClientRect();
+        const startX = r.right - cRect.left;
+        const startY = (r.top - cRect.top) + r.height / 2;
+        const endX = centerX - 95;
+        const endY = centerY + (idx - 1.5) * 26;
+        const cp1X = startX + (endX - startX) * 0.5;
+        const cp2X = startX + (endX - startX) * 0.5;
+        const d = `M ${startX} ${startY} C ${cp1X} ${startY}, ${cp2X} ${endY}, ${endX} ${endY}`;
+        bezierPathsIn.push({ startX, startY, cp1X, cp1Y: startY, cp2X, cp2Y: endY, endX, endY });
+        pathsMarkup += `<path d="${d}" stroke="url(#gradCyan)" stroke-width="1.5" fill="none" />`;
+        pathsMarkup += `<circle cx="${startX}" cy="${startY}" r="3" fill="#00b0ff" />`;
+      });
+
+      bezierPathsOut = [];
+      outputCards.forEach((card, idx) => {
+        const r = card.getBoundingClientRect();
+        const startX = centerX + 95;
+        const startY = centerY + (idx - 1) * 32;
+        const endX = r.left - cRect.left;
+        const endY = (r.top - cRect.top) + r.height / 2;
+        const cp1X = startX + (endX - startX) * 0.5;
+        const cp2X = startX + (endX - startX) * 0.5;
+        const d = `M ${startX} ${startY} C ${cp1X} ${startY}, ${cp2X} ${endY}, ${endX} ${endY}`;
+        bezierPathsOut.push({ startX, startY, cp1X, cp1Y: startY, cp2X, cp2Y: endY, endX, endY });
+        pathsMarkup += `<path d="${d}" stroke="url(#gradEmerald)" stroke-width="1.5" fill="none" />`;
+        pathsMarkup += `<circle cx="${endX}" cy="${endY}" r="3" fill="#00e676" />`;
+      });
+
+      pathsMarkup += `<g id="svgPacketsLayer"></g>`;
+      svg.innerHTML = pathsMarkup;
+    }
+
+    function cubicBezierPoint(t, p0, p1, p2, p3) {
+      const u = 1 - t;
+      const tt = t * t;
+      const uu = u * u;
+      const uuu = uu * u;
+      const ttt = tt * t;
+      return {
+        x: uuu * p0.x + 3 * uu * t * p1.x + 3 * u * tt * p2.x + ttt * p3.x,
+        y: uuu * p0.y + 3 * uu * t * p1.y + 3 * u * tt * p2.y + ttt * p3.y
+      };
+    }
+
+    function updateSvgPackets() {
+      const layer = document.getElementById('svgPacketsLayer');
+      if (!layer) return;
+
+      let circlesHtml = '';
+      for (let i = activePackets.length - 1; i >= 0; i--) {
+        const p = activePackets[i];
+        p.progress += p.speed;
+
+        if (p.progress >= 1) {
+          if (p.stage === 'in') {
+            // Transition to output packet
+            p.stage = 'out';
+            p.index = Math.floor(Math.random() * 3);
+            p.progress = 0;
+            p.color = p.index === 2 ? '#00e676' : '#ffab00';
+          } else {
+            activePackets.splice(i, 1);
+            continue;
+          }
+        }
+
+        const curve = p.stage === 'in' ? bezierPathsIn[p.index] : bezierPathsOut[p.index];
+        if (curve) {
+          const pt = cubicBezierPoint(
+            p.progress,
+            { x: curve.startX, y: curve.startY },
+            { x: curve.cp1X, y: curve.cp1Y },
+            { x: curve.cp2X, y: curve.cp2Y },
+            { x: curve.endX, y: curve.endY }
+          );
+          circlesHtml += `<circle cx="${pt.x}" cy="${pt.y}" r="3.5" fill="${p.color}" />`;
+        }
+      }
+      layer.innerHTML = circlesHtml;
+    }
+
+    // ==========================================
+    // 7. 3D PARTICLE NEURAL GLOBE (HTML5 CANVAS)
+    // ==========================================
+    const canvas = document.getElementById('neuralGlobeCanvas');
+    const ctx = canvas.getContext('2d');
+    let globeDots = [];
+    let rotY = 0;
+    let rotX = 0.22;
+    let isDragging = false;
+    let lastMouseX = 0;
+    let lastMouseY = 0;
+    let globePulseBoost = 1.0;
+
+    function initGlobeDots() {
+      globeDots = [];
+      const count = 520;
+      const goldenRatio = (1 + Math.sqrt(5)) / 2;
+
+      for (let i = 0; i < count; i++) {
+        const theta = (2 * Math.PI * i) / goldenRatio;
+        const phi = Math.acos(1 - (2 * (i + 0.5)) / count);
+        const x = Math.cos(theta) * Math.sin(phi);
+        const y = Math.sin(theta) * Math.sin(phi);
+        const z = Math.cos(phi);
+
+        // Assign node type (emerald core, cyan input, white structural)
+        let color = '#64748b';
+        if (i % 11 === 0) color = '#00e676';
+        else if (i % 17 === 0) color = '#00b0ff';
+        else if (i % 29 === 0) color = '#ffab00';
+
+        globeDots.push({ x, y, z, color, size: i % 11 === 0 ? 2.1 : 1.3 });
+      }
+    }
+
+    function resizeGlobeCanvas() {
+      const parent = canvas.parentElement;
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = parent.clientWidth * dpr;
+      canvas.height = parent.clientHeight * dpr;
+      ctx.scale(dpr, dpr);
+      drawBezierLines();
+    }
+
+    canvas.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      lastMouseX = e.clientX;
+      lastMouseY = e.clientY;
+    });
+
+    window.addEventListener('mouseup', () => {
+      isDragging = false;
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      const dx = e.clientX - lastMouseX;
+      const dy = e.clientY - lastMouseY;
+      rotY += dx * 0.007;
+      rotX += dy * 0.007;
+      lastMouseX = e.clientX;
+      lastMouseY = e.clientY;
+    });
+
+    // Touch support for globe rotation
+    canvas.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1) {
+        isDragging = true;
+        lastMouseX = e.touches[0].clientX;
+        lastMouseY = e.touches[0].clientY;
+      }
+    }, { passive: true });
+
+    canvas.addEventListener('touchmove', (e) => {
+      if (!isDragging || e.touches.length !== 1) return;
+      const dx = e.touches[0].clientX - lastMouseX;
+      const dy = e.touches[0].clientY - lastMouseY;
+      rotY += dx * 0.007;
+      rotX += dy * 0.007;
+      lastMouseX = e.touches[0].clientX;
+      lastMouseY = e.touches[0].clientY;
+    }, { passive: true });
+
+    canvas.addEventListener('touchend', () => {
+      isDragging = false;
+    });
+
+    function animateGlobe() {
+      const width = canvas.clientWidth;
+      const height = canvas.clientHeight;
+      ctx.clearRect(0, 0, width, height);
+
+      const cx = width / 2;
+      const cy = height / 2 - 8;
+      const radius = Math.min(width, height) * 0.36;
+
+      if (!isDragging) {
+        rotY += 0.0035 * globePulseBoost;
+      }
+      if (globePulseBoost > 1.0) {
+        globePulseBoost = Math.max(1.0, globePulseBoost - 0.02);
+      }
+
+      // Subtle inner radial glow
+      const grad = ctx.createRadialGradient(cx, cy, radius * 0.1, cx, cy, radius * 1.15);
+      grad.addColorStop(0, 'rgba(0, 230, 118, 0.08)');
+      grad.addColorStop(0.6, 'rgba(0, 176, 255, 0.03)');
+      grad.addColorStop(1, 'rgba(8, 11, 15, 0)');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius * 1.15, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Outer wireframe orbit ring
+      ctx.strokeStyle = 'rgba(0, 230, 118, 0.14)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, radius * 1.12, radius * 0.38, rotX * 0.5, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Project 3D points
+      const projected = [];
+      const cosY = Math.cos(rotY);
+      const sinY = Math.sin(rotY);
+      const cosX = Math.cos(rotX);
+      const sinX = Math.sin(rotX);
+
+      for (let i = 0; i < globeDots.length; i++) {
+        const d = globeDots[i];
+        // Rotate Y
+        const x1 = d.x * cosY - d.z * sinY;
+        const z1 = d.z * cosY + d.x * sinY;
+        // Rotate X
+        const y2 = d.y * cosX - z1 * sinX;
+        const z2 = z1 * cosX + d.y * sinX;
+
+        const scale = 320 / (320 - z2 * radius * 0.5);
+        const px = cx + x1 * radius * scale;
+        const py = cy + y2 * radius * scale;
+
+        projected.push({ px, py, z: z2, color: d.color, size: d.size });
+      }
+
+      // Sort back-to-front
+      projected.sort((a, b) => a.z - b.z);
+
+      // Draw neural connections between nearby front-facing nodes
+      ctx.lineWidth = 0.6;
+      for (let i = 0; i < projected.length; i += 3) {
+        const p1 = projected[i];
+        if (p1.z < 0.1) continue;
+        for (let j = i + 1; j < projected.length; j += 7) {
+          const p2 = projected[j];
+          if (p2.z < 0.1) continue;
+          const dist = Math.hypot(p1.px - p2.px, p1.py - p2.py);
+          if (dist < 34) {
+            ctx.strokeStyle = `rgba(0, 230, 118, ${(1 - dist / 34) * 0.22})`;
+            ctx.beginPath();
+            ctx.moveTo(p1.px, p1.py);
+            ctx.lineTo(p2.px, p2.py);
+            ctx.stroke();
+          }
+        }
+      }
+
+      // Draw particles
+      for (let i = 0; i < projected.length; i++) {
+        const p = projected[i];
+        const alpha = Math.max(0.12, (p.z + 1) / 2);
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.px, p.py, p.size * (p.z > 0 ? 1.15 : 0.8), 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+
+      updateSvgPackets();
+      requestAnimationFrame(animateGlobe);
+    }
+
+    // ==========================================
+    // 8. BOOTSTRAP APPLICATION
+    // ==========================================
+    window.addEventListener('resize', resizeGlobeCanvas);
+
+    window.onload = function () {
+      initGlobeDots();
+      renderTicker();
+      updateKPIs();
+      renderLogs();
+      renderDecisions();
+      renderStrategiesTable();
+      renderHistogram();
+      resizeGlobeCanvas();
+      animateGlobe();
+    };
+  </script>
+</body>
+</html>

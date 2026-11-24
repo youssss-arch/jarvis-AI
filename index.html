@@ -9,7 +9,7 @@
     --bg-main: #06090c;
     --bg-panel: #0b1016;
     --bg-card: #0e141c;
-    --bg-card-hover: #131b26;
+    --bg-card-hover: #141d29;
     --border: #1b2532;
     --border-bright: #2a394d;
     --text-main: #e2e8f0;
@@ -69,6 +69,8 @@
     gap: 6px;
     color: var(--text-dim);
   }
+  .pill.clickable { cursor: pointer; transition: 0.15s; }
+  .pill.clickable:hover { border-color: var(--border-bright); color: #fff; background: var(--bg-card-hover); }
   .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
   .dot.green { background: var(--green); box-shadow: 0 0 8px var(--green); animation: pulse 1.8s infinite; }
   .dot.blue { background: var(--blue); box-shadow: 0 0 8px var(--blue); }
@@ -122,7 +124,7 @@
   /* LAYOUT */
   .workspace { display: flex; flex: 1; }
   .sidebar {
-    width: 190px;
+    width: 195px;
     background: var(--bg-panel);
     border-right: 1px solid var(--border);
     padding: 14px 10px;
@@ -179,9 +181,10 @@
   .equity-pnl { font-family: var(--font-mono); font-size: 13px; font-weight: 700; color: var(--green); }
   .timeframe-pills { display: flex; gap: 4px; margin-top: 8px; font-family: var(--font-mono); font-size: 10px; }
   .tf-pill {
-    padding: 3px 8px; border-radius: 4px; background: #070b10; border: 1px solid var(--border);
-    color: var(--text-dim); cursor: pointer;
+    padding: 4px 9px; border-radius: 4px; background: #070b10; border: 1px solid var(--border);
+    color: var(--text-dim); cursor: pointer; transition: 0.15s; user-select: none;
   }
+  .tf-pill:hover { border-color: var(--border-bright); color: #fff; }
   .tf-pill.active { background: var(--green); color: #000; font-weight: 700; border-color: var(--green); }
 
   /* KPI ROW */
@@ -189,7 +192,9 @@
   .kpi-card {
     background: var(--bg-card); border: 1px solid var(--border);
     border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; justify-content: space-between;
+    cursor: pointer; transition: all 0.15s;
   }
+  .kpi-card:hover { background: var(--bg-card-hover); border-color: var(--border-bright); transform: translateY(-1px); }
   .kpi-title { font-family: var(--font-mono); font-size: 9px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
   .kpi-val { font-family: var(--font-mono); font-size: 22px; font-weight: 700; color: #fff; margin: 4px 0 2px; }
   .kpi-val.green { color: var(--green); }
@@ -217,8 +222,11 @@
   .io-col { display: flex; flex-direction: column; gap: 8px; }
   .io-box {
     background: #0a0f15; border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px;
+    cursor: pointer; transition: all 0.15s;
   }
+  .io-box:hover { border-color: var(--blue); background: #101822; transform: translateX(2px); }
   .io-box.highlight { border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.04); }
+  .io-box.highlight:hover { border-color: var(--green); }
   .io-top { display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); margin-bottom: 4px; }
   .io-num { font-size: 14px; font-weight: 700; color: #fff; }
 
@@ -226,6 +234,7 @@
     position: relative; height: 245px; display: flex; flex-direction: column; align-items: center; justify-content: center;
   }
   #brainCanvas { width: 100%; height: 215px; display: block; cursor: grab; }
+  #brainCanvas:active { cursor: grabbing; }
   .globe-status {
     font-family: var(--font-mono); font-size: 10px; color: var(--blue);
     background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.2);
@@ -237,6 +246,14 @@
     background: var(--bg-card); border: 1px solid var(--border);
     border-radius: 10px; padding: 14px; display: flex; flex-direction: column; justify-content: space-between; gap: 10px;
   }
+  .pair-selector { display: flex; gap: 4px; }
+  .pair-btn {
+    background: #070b10; border: 1px solid var(--border); color: var(--text-dim);
+    font-family: var(--font-mono); font-size: 10px; padding: 2px 7px; border-radius: 4px; cursor: pointer;
+  }
+  .pair-btn:hover { color: #fff; border-color: var(--border-bright); }
+  .pair-btn.active { background: rgba(56, 189, 248, 0.15); border-color: var(--blue); color: var(--blue); font-weight: 700; }
+
   .candlestick-box {
     background: #070b10; border: 1px solid var(--border); border-radius: 8px; padding: 10px; position: relative;
   }
@@ -245,7 +262,9 @@
     display: flex; justify-content: space-between; align-items: center;
     background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25);
     padding: 6px 10px; border-radius: 6px; font-family: var(--font-mono); font-size: 11px;
+    cursor: pointer; transition: 0.15s;
   }
+  .trade-banner:hover { background: rgba(16, 185, 129, 0.16); }
 
   /* BOTTOM 3 COLUMNS: AGENTS, ACTIVITY, KILLED BY RULE + X FEED */
   .bottom-grid {
@@ -260,22 +279,58 @@
   .agent-row {
     display: flex; justify-content: space-between; align-items: center;
     background: #090e14; border: 1px solid var(--border); padding: 7px 10px; border-radius: 6px;
-    font-family: var(--font-mono); font-size: 11px;
+    font-family: var(--font-mono); font-size: 11px; cursor: pointer; transition: 0.15s;
   }
+  .agent-row:hover { border-color: var(--border-bright); background: #0f1620; }
   .agent-tag {
     padding: 2px 6px; border-radius: 4px; font-weight: 700; font-size: 10px;
   }
   .activity-row {
     display: flex; justify-content: space-between; align-items: center;
     padding: 6px 8px; border-bottom: 1px solid var(--border); font-family: var(--font-mono); font-size: 11px;
+    cursor: pointer; border-radius: 4px; transition: 0.15s;
   }
+  .activity-row:hover { background: #0f1620; }
   .activity-row:last-child { border-bottom: none; }
 
-  .rule-bar-wrap { display: flex; flex-direction: column; gap: 4px; font-family: var(--font-mono); font-size: 10px; }
+  .rule-bar-wrap {
+    display: flex; flex-direction: column; gap: 4px; font-family: var(--font-mono); font-size: 10px;
+    cursor: pointer; padding: 3px 4px; border-radius: 4px;
+  }
+  .rule-bar-wrap:hover { background: #0f1620; }
   .rule-bar-bg { width: 100%; height: 5px; background: #161f2c; border-radius: 3px; overflow: hidden; }
   .rule-bar-fill { height: 100%; background: var(--red); border-radius: 3px; }
 
-  /* MODAL / VIEWS */
+  /* MODAL D'INSPECTION INTERACTIF */
+  .modal-backdrop {
+    position: fixed; inset: 0; background: rgba(2, 4, 8, 0.8); backdrop-filter: blur(4px);
+    display: none; align-items: center; justify-content: center; z-index: 200; padding: 16px;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal-box {
+    background: var(--bg-panel); border: 1px solid var(--border-bright); border-radius: 10px;
+    width: 100%; max-width: 640px; max-height: 82vh; display: flex; flex-direction: column;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.7); overflow: hidden;
+  }
+  .modal-head {
+    padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex;
+    justify-content: space-between; align-items: center; font-family: var(--font-mono);
+  }
+  .modal-close {
+    background: transparent; border: 1px solid var(--border-bright); color: var(--text-dim);
+    padding: 3px 8px; border-radius: 4px; cursor: pointer; font-family: var(--font-mono);
+  }
+  .modal-close:hover { color: #fff; border-color: var(--red); }
+  .modal-body {
+    padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;
+    font-family: var(--font-mono); font-size: 11px;
+  }
+  .modal-item {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px;
+    display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  }
+
+  /* VIEWS */
   .view-section { display: none; flex-direction: column; gap: 14px; }
   .view-section.active { display: flex; }
   .decision-card {
@@ -292,8 +347,9 @@
   }
   .mini-btn {
     background: var(--bg-card); border: 1px solid var(--border-bright); color: var(--text-main);
-    font-family: var(--font-mono); font-size: 10px; padding: 4px 8px; border-radius: 5px; cursor: pointer;
+    font-family: var(--font-mono); font-size: 10px; padding: 5px 10px; border-radius: 5px; cursor: pointer;
   }
+  .mini-btn:hover { border-color: var(--green); color: var(--green); }
 
   @media (max-width: 1200px) {
     .equity-hero, .middle-grid, .bottom-grid { grid-template-columns: 1fr; }
@@ -311,9 +367,9 @@
         <div class="brand-icon">⚡</div>
         <span>JARVIS // CERVEAU-TRADING</span>
       </div>
-      <div class="pill"><span class="dot green"></span> 8 AGENTS ACTIFS</div>
-      <div class="pill"><span class="dot blue"></span> HERMES LIT</div>
-      <div class="pill">BUDGET IA : <strong style="color:var(--green)">ILLIMITÉ ∞</strong></div>
+      <div class="pill clickable" onclick="switchView('agents', document.querySelectorAll('.nav-item')[1])"><span class="dot green"></span> 8 AGENTS ACTIFS</div>
+      <div class="pill clickable" onclick="openInspector('hermes')"><span class="dot blue"></span> HERMES LIT</div>
+      <div class="pill clickable" onclick="openInspector('budget')">BUDGET IA : <strong style="color:var(--green)">ILLIMITÉ ∞</strong></div>
     </div>
     <div class="topbar-right">
       <button class="btn-action" onclick="triggerCycle()">↻ SIMULER UN CYCLE IA</button>
@@ -354,11 +410,17 @@
             <span>☑ Décisions Live</span>
             <span class="badge-count" id="decisionBadge">2</span>
           </div>
+          <div class="nav-item" onclick="switchView('strategies', this)">
+            <span>📈 Stratégies (12)</span>
+          </div>
+          <div class="nav-item" onclick="switchView('logs', this)">
+            <span>📜 Historique Complet</span>
+          </div>
         </div>
       </div>
       <div style="font-family:var(--font-mono); font-size:10px; color:var(--text-dim); padding:8px; border-top:1px solid var(--border);">
         <div style="color:var(--green)">● MODE ILLIMITÉ ACTIF</div>
-        <div style="margin-top:4px;">Sans plafond de gains</div>
+        <div style="margin-top:4px;">Cliquez sur n'importe quelle carte pour inspecter</div>
       </div>
     </aside>
 
@@ -383,86 +445,87 @@
               </div>
               <div class="equity-pnl" id="pnlDisplay">+445,41 € (+415,1 %)</div>
             </div>
-            <div class="timeframe-pills">
-              <span class="tf-pill active">● LIVE</span>
-              <span class="tf-pill">1H</span>
-              <span class="tf-pill">4H</span>
-              <span class="tf-pill">1D</span>
-              <span class="tf-pill">1W</span>
-              <span class="tf-pill">ALL</span>
+            <!-- BOUTONS DE PÉRIODE INTERACTIFS -->
+            <div class="timeframe-pills" id="tfGroup">
+              <span class="tf-pill active" onclick="selectTimeframe('LIVE', this)">● LIVE</span>
+              <span class="tf-pill" onclick="selectTimeframe('1H', this)">1H</span>
+              <span class="tf-pill" onclick="selectTimeframe('4H', this)">4H</span>
+              <span class="tf-pill" onclick="selectTimeframe('1D', this)">1D</span>
+              <span class="tf-pill" onclick="selectTimeframe('1W', this)">1W</span>
+              <span class="tf-pill" onclick="selectTimeframe('ALL', this)">ALL</span>
             </div>
           </div>
 
           <!-- COURBE D'EQUITY EN DIRECT -->
           <div style="display:flex; flex-direction:column; justify-content:space-between;">
             <div style="display:flex; justify-content:space-between; font-family:var(--font-mono); font-size:10px; color:var(--text-dim);">
-              <span>COURBE DE PERFORMANCE (EQUITY)</span>
+              <span id="equityChartLabel">COURBE DE PERFORMANCE (LIVE)</span>
               <span style="color:var(--green)">● CROISSANCE ILLIMITÉE</span>
             </div>
             <canvas id="equityCanvas" style="width:100%; height:95px;"></canvas>
           </div>
 
-          <!-- MINI STATS RAPIDES -->
+          <!-- MINI STATS RAPIDES CLIQUABLES -->
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; font-family:var(--font-mono);">
-            <div class="io-box">
+            <div class="io-box" onclick="openInspector('wins')">
               <div class="kpi-title">TRADES GAGNANTS</div>
               <div class="io-num" style="color:var(--green); margin-top:4px;" id="winCountDisplay">135W / 56L</div>
-              <div class="kpi-sub">70.6% Win Rate</div>
+              <div class="kpi-sub">70.6% Win Rate ↗</div>
             </div>
-            <div class="io-box">
+            <div class="io-box" onclick="openInspector('besthour')">
               <div class="kpi-title">MEILLEURE HEURE</div>
               <div class="io-num" style="color:var(--green); margin-top:4px;" id="bestHourDisplay">+31,45 €</div>
-              <div class="kpi-sub">Auto-compounding</div>
+              <div class="kpi-sub">Auto-compounding ↗</div>
             </div>
-            <div class="io-box">
+            <div class="io-box" onclick="openInspector('rugs')">
               <div class="kpi-title">RUGS BLOQUÉS</div>
               <div class="io-num" style="color:var(--amber); margin-top:4px;" id="rugsBlockedDisplay">59</div>
-              <div class="kpi-sub">Rug Filter actif</div>
+              <div class="kpi-sub">Rug Filter actif ↗</div>
             </div>
-            <div class="io-box">
+            <div class="io-box" onclick="openInspector('budget')">
               <div class="kpi-title">BUDGET IA</div>
               <div class="io-num" style="color:var(--blue); margin-top:4px;">ILLIMITÉ</div>
-              <div class="kpi-sub">∞ cycles / jour</div>
+              <div class="kpi-sub">∞ cycles / jour ↗</div>
             </div>
           </div>
         </section>
 
-        <!-- 7 KPI CARDS -->
+        <!-- 7 KPI CARDS CLIQUABLES -->
         <section class="kpi-grid">
-          <div class="kpi-card">
+          <div class="kpi-card" onclick="openInspector('imagined')">
             <div class="kpi-title">IMAGINÉES</div>
             <div class="kpi-val" id="kpiImagined">1.645</div>
-            <div class="kpi-sub">stratégies générées</div>
+            <div class="kpi-sub">voir recettes ↗</div>
           </div>
-          <div class="kpi-card">
+          <div class="kpi-card" onclick="openInspector('scanned')">
             <div class="kpi-title">TOKENS / POOLS SCANNÉS</div>
             <div class="kpi-val" id="kpiScanned">2.017</div>
-            <div class="kpi-sub">temps réel</div>
+            <div class="kpi-sub">voir pools ↗</div>
           </div>
-          <div class="kpi-card">
+          <div class="kpi-card" onclick="openInspector('rugs')">
             <div class="kpi-title">REJETÉS (RÈGLES)</div>
             <div class="kpi-val red" id="kpiRejected">1.857</div>
-            <div class="kpi-sub">filtrés par sécurité</div>
+            <div class="kpi-sub">voir blocages ↗</div>
           </div>
-          <div class="kpi-card">
+          <div class="kpi-card" onclick="switchView('strategies', document.querySelectorAll('.nav-item')[3])">
             <div class="kpi-title">VALIDÉES</div>
             <div class="kpi-val green" id="kpiPassed">157</div>
-            <div class="kpi-sub">prêtes exécution</div>
+            <div class="kpi-sub">voir validées ↗</div>
           </div>
-          <div class="kpi-card">
+          <div class="kpi-card" onclick="openInspector('paper')">
             <div class="kpi-title">EN PAPER</div>
             <div class="kpi-val" id="kpiPaper">5</div>
-            <div class="kpi-sub">test démo actif</div>
+            <div class="kpi-sub">test démo actif ↗</div>
           </div>
-          <div class="kpi-card" style="cursor:pointer; border-color:rgba(245,158,11,0.4);" onclick="switchView('decisions', document.querySelectorAll('.nav-item')[2])">
+          <div class="kpi-card" style="border-color:rgba(245,158,11,0.4);" onclick="switchView('decisions', document.querySelectorAll('.nav-item')[2])">
             <div class="kpi-title">EN LIVE</div>
             <div class="kpi-val green" id="kpiLive">3 ACTIFS</div>
             <div class="kpi-sub" style="color:var(--amber)">gérer validations →</div>
           </div>
-          <div class="kpi-card">
+          <div class="kpi-card" onclick="openInspector('budget')">
             <div class="kpi-title">PLAFOND GAINS</div>
             <div class="kpi-val green">∞ €</div>
-            <div class="kpi-sub">aucune limite</div>
+            <div class="kpi-sub">aucune limite ↗</div>
           </div>
         </section>
 
@@ -471,155 +534,160 @@
           <!-- NOYAU CERVEAU 3D -->
           <div class="core-panel">
             <div class="panel-header">
-              <div><span style="color:var(--green)">● NOYAU-CERVEAU</span> <span style="color:var(--text-dim)">— Sources, X Feed & Stratégies</span></div>
+              <div><span style="color:var(--green)">● NOYAU-CERVEAU</span> <span style="color:var(--text-dim)">— Cliquez sur une source pour inspecter</span></div>
               <span class="pill" style="color:var(--green); border-color:rgba(16,185,129,0.3)">● CERVEAU ACTIF</span>
             </div>
 
             <div class="core-body">
-              <!-- SOURCES GAUCHE -->
+              <!-- SOURCES GAUCHE CLIQUABLES -->
               <div class="io-col">
-                <div class="io-box">
-                  <div class="io-top"><span>YOUTUBE & VIDÉOS</span><span class="io-num" id="srcYt">101</span></div>
+                <div class="io-box" onclick="openInspector('youtube')">
+                  <div class="io-top"><span>YOUTUBE & VIDÉOS ↗</span><span class="io-num" id="srcYt">101</span></div>
                   <div style="height:3px; background:var(--blue); width:75%; border-radius:2px;"></div>
                 </div>
-                <div class="io-box">
-                  <div class="io-top"><span>GITHUB CODE</span><span class="io-num" id="srcGh">81</span></div>
+                <div class="io-box" onclick="openInspector('github')">
+                  <div class="io-top"><span>GITHUB CODE ↗</span><span class="io-num" id="srcGh">81</span></div>
                   <div style="height:3px; background:var(--blue); width:62%; border-radius:2px;"></div>
                 </div>
-                <div class="io-box">
-                  <div class="io-top"><span>ARXIV QUANT</span><span class="io-num" id="srcAx">68</span></div>
+                <div class="io-box" onclick="openInspector('arxiv')">
+                  <div class="io-top"><span>ARXIV QUANT ↗</span><span class="io-num" id="srcAx">68</span></div>
                   <div style="height:3px; background:var(--purple); width:54%; border-radius:2px;"></div>
                 </div>
-                <div class="io-box">
-                  <div class="io-top"><span>X FEED (SENTIMENT)</span><span class="io-num" id="srcX">142</span></div>
+                <div class="io-box" onclick="openInspector('xfeed')">
+                  <div class="io-top"><span>X FEED (SENTIMENT) ↗</span><span class="io-num" id="srcX">142</span></div>
                   <div style="height:3px; background:var(--green); width:88%; border-radius:2px;"></div>
                 </div>
               </div>
 
-              <!-- GLOBE NEURONAL -->
+              <!-- GLOBE NEURONAL INTERACTIF (ROTATION SOURIS + CLIC) -->
               <div class="globe-wrapper">
-                <canvas id="brainCanvas"></canvas>
+                <canvas id="brainCanvas" title="Glissez pour faire tourner • Cliquez pour accélérer"></canvas>
                 <div class="globe-status" id="globeTask">EN COURS : Analyse flux d'ordres & sentiment X en direct</div>
               </div>
 
-              <!-- SORTIES DROITE -->
+              <!-- SORTIES DROITE CLIQUABLES -->
               <div class="io-col">
-                <div class="io-box">
-                  <div class="io-top"><span>IMAGINÉES</span><span class="io-num" id="outImg">331</span></div>
+                <div class="io-box" onclick="openInspector('imagined')">
+                  <div class="io-top"><span>IMAGINÉES ↗</span><span class="io-num" id="outImg">331</span></div>
                   <div class="kpi-sub">recettes générées</div>
                 </div>
-                <div class="io-box">
-                  <div class="io-top"><span>VARIANTES TESTÉES</span><span class="io-num" id="outVar">1.217</span></div>
+                <div class="io-box" onclick="openInspector('variants')">
+                  <div class="io-top"><span>VARIANTES TESTÉES ↗</span><span class="io-num" id="outVar">1.217</span></div>
                   <div class="kpi-sub">backtests Monte Carlo</div>
                 </div>
-                <div class="io-box highlight">
-                  <div class="io-top"><span style="color:var(--green)">VALIDÉES</span><span class="io-num" style="color:var(--green)" id="outVal">12</span></div>
+                <div class="io-box highlight" onclick="switchView('strategies', document.querySelectorAll('.nav-item')[3])">
+                  <div class="io-top"><span style="color:var(--green)">VALIDÉES ↗</span><span class="io-num" style="color:var(--green)" id="outVal">12</span></div>
                   <div class="kpi-sub">prêtes pour le réel</div>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- LIVE BOT SCREEN (GRAPHIQUE MARCHÉ + ORDRES) -->
+          <!-- LIVE BOT SCREEN (GRAPHIQUE MARCHÉ + SÉLECTEUR DE PAIRES) -->
           <div class="live-screen-panel">
             <div class="panel-header">
               <div><span style="color:var(--red)">● LIVE SCREEN</span> <span style="color:var(--text-dim)">— Bot's Computer</span></div>
-              <span style="color:var(--green)">Executor · actifs</span>
+              <div class="pair-selector">
+                <button class="pair-btn active" onclick="switchPair('SOL / USDC', this)">SOL</button>
+                <button class="pair-btn" onclick="switchPair('BTC / USDT', this)">BTC</button>
+                <button class="pair-btn" onclick="switchPair('SWJ / SOL', this)">SWJ</button>
+                <button class="pair-btn" onclick="switchPair('OR (GC)', this)">OR</button>
+              </div>
             </div>
             <div class="candlestick-box">
               <div style="display:flex; justify-content:space-between; font-family:var(--font-mono); font-size:10px; color:var(--text-dim); margin-bottom:6px;">
-                <span>SOL / USDC · 1m</span>
+                <span id="activePairTitle">SOL / USDC · 1m</span>
                 <span style="color:var(--green)" id="livePairStatus">LONG · +24.1% ROE</span>
               </div>
               <canvas id="candleCanvas"></canvas>
             </div>
-            <div class="trade-banner" id="lastVerifiedBanner">
+            <div class="trade-banner" id="lastVerifiedBanner" onclick="switchView('logs', document.querySelectorAll('.nav-item')[4])">
               <span>✓ Sold SWJ · <strong>+377,40 €</strong></span>
-              <span style="color:var(--green)">● verified</span>
+              <span style="color:var(--green)">● verified (voir tout ↗)</span>
             </div>
           </div>
         </section>
 
         <!-- BOTTOM 3 COLUMNS -->
         <section class="bottom-grid">
-          <!-- COLONNE 1 : LES 8 AGENTS ACTIFS -->
+          <!-- COLONNE 1 : LES 8 AGENTS ACTIFS CLIQUABLES -->
           <div class="sub-card">
             <div class="panel-header">
               <strong>DESK · 8 AGENTS ACTIFS</strong>
               <span style="color:var(--green)">● EN LIGNE</span>
             </div>
-            <div class="agent-row">
+            <div class="agent-row" onclick="openInspector('agent-scout')">
               <div><span class="agent-tag" style="background:rgba(56,189,248,0.15); color:var(--blue)">SCOUT</span> Détection nouvelles paires</div>
-              <span style="color:var(--text-dim)">1.900 pools</span>
+              <span style="color:var(--text-dim)">1.900 pools ↗</span>
             </div>
-            <div class="agent-row">
+            <div class="agent-row" onclick="openInspector('agent-analyst')">
               <div><span class="agent-tag" style="background:rgba(245,158,11,0.15); color:var(--amber)">ANALYST</span> Scoring multi-timeframes</div>
-              <span style="color:var(--amber)">Score 93</span>
+              <span style="color:var(--amber)">Score 93 ↗</span>
             </div>
-            <div class="agent-row">
+            <div class="agent-row" onclick="openInspector('agent-brain')">
               <div><span class="agent-tag" style="background:rgba(168,85,247,0.15); color:var(--purple)">BRAIN</span> Sizing & allocation capital</div>
-              <span style="color:var(--text-dim)">8% max</span>
+              <span style="color:var(--text-dim)">8% max ↗</span>
             </div>
-            <div class="agent-row">
+            <div class="agent-row" onclick="openInspector('agent-executor')">
               <div><span class="agent-tag" style="background:rgba(16,185,129,0.15); color:var(--green)">EXECUTOR</span> Achat / Vente haute vitesse</div>
-              <span style="color:var(--green)">Actif</span>
+              <span style="color:var(--green)">Actif ↗</span>
             </div>
-            <div class="agent-row">
+            <div class="agent-row" onclick="openInspector('rugs')">
               <div><span class="agent-tag" style="background:rgba(239,68,68,0.15); color:var(--red)">RUG FILTER</span> Dev Check & Stop Guard</div>
-              <span style="color:var(--red)">Strict</span>
+              <span style="color:var(--red)">Strict ↗</span>
             </div>
           </div>
 
-          <!-- COLONNE 2 : JOURNAL D'ACTIVITÉ EN DIRECT -->
+          <!-- COLONNE 2 : JOURNAL D'ACTIVITÉ (BLOQUÉ À 5 LIGNES EXACTES) -->
           <div class="sub-card">
             <div class="panel-header">
               <strong>ACTIVITY · ORDRES RÉCENTS</strong>
-              <span style="color:var(--text-dim)">Temps réel</span>
+              <span style="color:var(--blue); cursor:pointer;" onclick="switchView('logs', document.querySelectorAll('.nav-item')[4])">Tout voir ↗</span>
             </div>
             <div id="activityFeed">
-              <div class="activity-row">
+              <div class="activity-row" onclick="switchView('logs', document.querySelectorAll('.nav-item')[4])">
                 <div><strong style="color:var(--green)">Sold SWJ</strong> <span style="color:var(--text-dim)">· trail 40%</span></div>
                 <span style="color:var(--green); font-weight:700">+377,40 €</span>
               </div>
-              <div class="activity-row">
+              <div class="activity-row" onclick="switchView('logs', document.querySelectorAll('.nav-item')[4])">
                 <div><strong style="color:#fff">Bought BC</strong> <span style="color:var(--text-dim)">· score 91</span></div>
                 <span style="color:var(--text-dim)">101,20 €</span>
               </div>
-              <div class="activity-row">
+              <div class="activity-row" onclick="switchView('logs', document.querySelectorAll('.nav-item')[4])">
                 <div><strong style="color:var(--red)">Stopped TTP</strong> <span style="color:var(--text-dim)">· -25% stop</span></div>
                 <span style="color:var(--red)">-26,40 €</span>
               </div>
-              <div class="activity-row">
+              <div class="activity-row" onclick="switchView('logs', document.querySelectorAll('.nav-item')[4])">
                 <div><strong style="color:var(--green)">Sold CSI 50%</strong> <span style="color:var(--text-dim)">· take profit</span></div>
                 <span style="color:var(--green); font-weight:700">+112,80 €</span>
               </div>
-              <div class="activity-row">
+              <div class="activity-row" onclick="switchView('logs', document.querySelectorAll('.nav-item')[4])">
                 <div><strong style="color:var(--text-dim)">Skipped AURA</strong> <span style="color:var(--text-dim)">· copycat</span></div>
                 <span style="color:var(--amber)">Rejeté</span>
               </div>
             </div>
           </div>
 
-          <!-- COLONNE 3 : KILLED BY RULE + X FEED -->
+          <!-- COLONNE 3 : KILLED BY RULE + X FEED CLIQUABLES -->
           <div class="sub-card">
             <div class="panel-header">
               <strong>KILLED BY RULE & X FEED</strong>
-              <span style="color:var(--red)">Sécurité</span>
+              <span style="color:var(--red); cursor:pointer;" onclick="openInspector('rugs')">Détails ↗</span>
             </div>
-            <div class="rule-bar-wrap">
+            <div class="rule-bar-wrap" onclick="openInspector('rugs')">
               <div style="display:flex; justify-content:space-between;"><span>Liquidité &lt; 40k €</span><span style="color:var(--red)">445</span></div>
               <div class="rule-bar-bg"><div class="rule-bar-fill" style="width:82%"></div></div>
             </div>
-            <div class="rule-bar-wrap">
+            <div class="rule-bar-wrap" onclick="openInspector('rugs')">
               <div style="display:flex; justify-content:space-between;"><span>Mint / Freeze non révoqué</span><span style="color:var(--red)">383</span></div>
               <div class="rule-bar-bg"><div class="rule-bar-fill" style="width:70%"></div></div>
             </div>
-            <div class="rule-bar-wrap">
+            <div class="rule-bar-wrap" onclick="openInspector('rugs')">
               <div style="display:flex; justify-content:space-between;"><span>LP non brûlée / verrouillée</span><span style="color:var(--red)">328</span></div>
               <div class="rule-bar-bg"><div class="rule-bar-fill" style="width:60%"></div></div>
             </div>
-            <div style="margin-top:4px; padding-top:8px; border-top:1px solid var(--border); font-family:var(--font-mono); font-size:10px;">
-              <div style="color:var(--blue); margin-bottom:4px;">● X SENTIMENT TRACKING</div>
+            <div style="margin-top:4px; padding-top:8px; border-top:1px solid var(--border); font-family:var(--font-mono); font-size:10px; cursor:pointer;" onclick="openInspector('xfeed')">
+              <div style="color:var(--blue); margin-bottom:4px;">● X SENTIMENT TRACKING ↗</div>
               <div style="display:flex; justify-content:space-between; color:var(--text-dim);"><span>@rektmononoke · $PUFF chart</span><span style="color:var(--green)">+0.86</span></div>
               <div style="display:flex; justify-content:space-between; color:var(--text-dim); margin-top:2px;"><span>@solsniper · $BOBA vol spike</span><span style="color:var(--green)">+0.91</span></div>
             </div>
@@ -672,19 +740,62 @@
           <div class="sub-card"><strong>1. HERMES (Veille & X Sentiment)</strong><p style="color:var(--text-dim)">Scanne ArXiv, GitHub, YouTube et les signaux sociaux X en continu.</p></div>
           <div class="sub-card"><strong>2. ORION (Orchestrateur & Code)</strong><p style="color:var(--text-dim)">Génère les stratégies et lance les simulations Monte Carlo.</p></div>
           <div class="sub-card"><strong>3. SCOUT (Scanner de Pools)</strong><p style="color:var(--text-dim)">Détecte les nouvelles paires et pics de volume en moins de 500ms.</p></div>
-          <div class="sub-card"><strong>4. RUG FILTER & DEV CHECK</strong><p style="color:var(--text-dim)">Bloque automatiquement les contrats non sécurisés ou manipulés.</p></div>
+          <div class="sub-card"><strong>4. ANALYST (Scoring Multi-Timeframes)</strong><p style="color:var(--text-dim)">Évalue le momentum 1m, 5m, 15m et attribue un score de confiance sur 100.</p></div>
+          <div class="sub-card"><strong>5. BRAIN (Sizing & Allocation)</strong><p style="color:var(--text-dim)">Calcule la taille optimale de chaque position (max 8% du capital).</p></div>
+          <div class="sub-card"><strong>6. EXECUTOR (Exécution Ordres)</strong><p style="color:var(--text-dim)">Passe les ordres d'achat/vente avec trailing stop automatique.</p></div>
+          <div class="sub-card"><strong>7. RUG FILTER & DEV CHECK</strong><p style="color:var(--text-dim)">Vérifie le verrouillage LP, les Top 10 holders et bloque les arnaques.</p></div>
+          <div class="sub-card"><strong>8. TP MANAGER & STOP GUARD</strong><p style="color:var(--text-dim)">Sécurise les profits partiels (+50%) et coupe les pertes à -25%.</p></div>
+        </div>
+      </div>
+
+      <!-- VUE STRATÉGIES VALIDÉES -->
+      <div id="view-strategies" class="view-section">
+        <div class="panel-header">
+          <h2>STRATÉGIES VALIDÉES & EN PRODUCTION</h2>
+          <button class="mini-btn" onclick="switchView('overview', document.querySelectorAll('.nav-item')[0])">← Retour Vue d'ensemble</button>
+        </div>
+        <div class="sub-card">
+          <div class="modal-item"><div><strong style="color:var(--green)">[LIVE] Range-GC Breakout v4</strong><div style="color:var(--text-dim)">Or Futures (GC) · 4H · Sharpe 2.18</div></div><span style="color:var(--green)">+184,20 €</span></div>
+          <div class="modal-item"><div><strong style="color:var(--green)">[LIVE] Solana Momentum Sniper v2</strong><div style="color:var(--text-dim)">SOL/USDC · 1m · Win Rate 71.4%</div></div><span style="color:var(--green)">+261,21 €</span></div>
+          <div class="modal-item"><div><strong style="color:var(--blue)">[PAPER] VWAP Institutional Reversion</strong><div style="color:var(--text-dim)">NASDAQ-100 · 15m · Jour 11/21</div></div><span style="color:var(--blue)">Sharpe 1.94</span></div>
+          <div class="modal-item"><div><strong style="color:var(--blue)">[PAPER] X Sentiment Spike Catcher</strong><div style="color:var(--text-dim)">Top Volume Pairs · 5m · Jour 8/21</div></div><span style="color:var(--blue)">Profit F. 2.05</span></div>
+        </div>
+      </div>
+
+      <!-- VUE HISTORIQUE COMPLET -->
+      <div id="view-logs" class="view-section">
+        <div class="panel-header">
+          <h2>JOURNAL COMPLET DES TRANSACTIONS</h2>
+          <button class="mini-btn" onclick="switchView('overview', document.querySelectorAll('.nav-item')[0])">← Retour Vue d'ensemble</button>
+        </div>
+        <div class="sub-card" id="fullLogsList">
+          <div class="modal-item"><div><strong style="color:var(--green)">Sold SWJ</strong> · Trail 40% déclenché</div><span style="color:var(--green)">+377,40 €</span></div>
+          <div class="modal-item"><div><strong style="color:#fff">Bought BC</strong> · Signal Analyst Score 91</div><span style="color:var(--text-dim)">101,20 €</span></div>
+          <div class="modal-item"><div><strong style="color:var(--red)">Stopped TTP</strong> · Stop Guard -25%</div><span style="color:var(--red)">-26,40 €</span></div>
+          <div class="modal-item"><div><strong style="color:var(--green)">Sold CSI 50%</strong> · Take Profit niveau 1</div><span style="color:var(--green)">+112,80 €</span></div>
         </div>
       </div>
 
     </main>
   </div>
 
+  <!-- MODALE D'INSPECTION INTERACTIVE -->
+  <div class="modal-backdrop" id="inspectorModal" onclick="if(event.target===this) closeInspector()">
+    <div class="modal-box">
+      <div class="modal-head">
+        <strong id="modalTitle" style="color:var(--green)">INSPECTION MODULE</strong>
+        <button class="modal-close" onclick="closeInspector()">FERMER ✕</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
 <script>
   // =========================================================================
   // CONFIGURATION DU CAPITAL DE DÉPART ET DES GAINS (MODIFIABLE DIRECTEMENT ICI)
   // =========================================================================
-  const CAPITAL_DEPART = 107.30;   // <-- Change ton prix de départ ici (en €)
-  let currentEquity    = 552.71;   // <-- Somme actuelle au démarrage (croissance illimitée ensuite)
+  const CAPITAL_DEPART = 107.30;   // <-- Prix de départ en €
+  let currentEquity    = 552.71;   // <-- Somme actuelle au démarrage
   const PLAFOND_GAINS  = Infinity; // <-- Illimité (aucun plafond)
   // =========================================================================
 
@@ -702,6 +813,7 @@
     currentEquity
   ];
 
+  let activeTimeframe = 'LIVE';
   let cycleCount = 13042;
   let wins = 135;
   let losses = 56;
@@ -725,18 +837,170 @@
     drawEquityChart();
   }
 
+  // SÉLECTEUR DE PÉRIODE (LIVE, 1H, 4H, 1D, 1W, ALL)
+  function selectTimeframe(tf, el) {
+    activeTimeframe = tf;
+    document.querySelectorAll('.tf-pill').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('equityChartLabel').textContent = `COURBE DE PERFORMANCE (${tf})`;
+    drawEquityChart();
+  }
+
+  // SÉLECTEUR DE PAIRE SUR LE LIVE SCREEN
+  function switchPair(pairName, el) {
+    document.querySelectorAll('.pair-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('activePairTitle').textContent = `${pairName} · 1m`;
+    const roe = (8 + Math.random() * 32).toFixed(1);
+    document.getElementById('livePairStatus').textContent = `LONG · +${roe}% ROE`;
+    // Régénérer des bougies fraîches pour la paire choisie
+    candles = [];
+    lastClose = pairName.includes('BTC') ? 94500 : (pairName.includes('OR') ? 2680 : 145);
+    for (let i = 0; i < 28; i++) {
+      let open = lastClose;
+      let close = open + (Math.random() - 0.46) * (lastClose * 0.015);
+      let high = Math.max(open, close) + Math.random() * (lastClose * 0.008);
+      let low = Math.min(open, close) - Math.random() * (lastClose * 0.008);
+      candles.push({ open, close, high, low, signal: i === 16 ? 'BUY' : (i === 24 ? 'SELL' : null) });
+      lastClose = close;
+    }
+    drawCandles();
+  }
+
+  // MODALE D'INSPECTION POUR TOUTES LES SOURCES ET CARTES
+  const inspectorData = {
+    youtube: {
+      title: "SOURCES YOUTUBE & TRANSCRIPTIONS ANALYSÉES (101)",
+      items: [
+        ["VWAP Institutional Liquidity Zones (2026)", "Extrait : Entrée sur rejet VWAP + divergence RSI · Validé"],
+        ["Orderflow Imbalance Scalping 1m", "Extrait : Déséquilibre carnet d'ordres > 3.2x · En test"],
+        ["100x Winrate Guaranteed Bot (Chaîne Promo)", "REJETÉ : Promesse de gain fixe détectée par filtre"]
+      ]
+    },
+    github: {
+      title: "DÉPÔTS GITHUB QUANTITATIFS SCANNÉS (81)",
+      items: [
+        ["quant-orderflow-rs (Rust/Python)", "Algorithme de détection de murs d'ordres · Score 94/100"],
+        ["solana-sniper-pool-detector", "Détection création LP Raydium < 200ms · Intégré à SCOUT"],
+        ["vectorbt-monte-carlo-suite", "Moteur de simulation 1.000 tirages · Intégré à ORION"]
+      ]
+    },
+    arxiv: {
+      title: "ARTICLES SCIENTIFIQUES ARXIV (68)",
+      items: [
+        ["ArXiv:2411.09821 — Volatility Compression Breakout", "Modèle mathématique appliqué sur Or Futures (STRAT-894)"],
+        ["ArXiv:2502.11842 — Microstructure & Toxic Orderflow", "Filtre anti-manipulation utilisé par RUG FILTER"],
+        ["ArXiv:2409.04112 — Adaptive Kelly Criterion Sizing", "Calcul de taille de position max 8% utilisé par BRAIN"]
+      ]
+    },
+    xfeed: {
+      title: "FLUX X (TWITTER) & SENTIMENT EN DIRECT (142)",
+      items: [
+        ["@rektmononoke · $PUFF", "Sentiment +0.86 · Pic de mentions +340% en 15 min"],
+        ["@solsniper · $BOBA", "Sentiment +0.91 · Accumulation baleines détectée"],
+        ["@alpha_quant · $SWJ", "Sentiment +0.88 · Signal confirmé avant hausse +324%"]
+      ]
+    },
+    imagined: {
+      title: "DERNIÈRES STRATÉGIES IMAGINÉES PAR ORION",
+      items: [
+        ["STRAT-908 · Bollinger Squeeze + X Spike", "En cours de backtest sur 50.000 bougies"],
+        ["STRAT-907 · EMA 9/21 + Volume Delta", "Passé au tamis (Sharpe 1.72)"],
+        ["STRAT-906 · Liquidity Sweep Reversal", "Validé pour Paper Trading"]
+      ]
+    },
+    variants: {
+      title: "TESTS MONTE CARLO & VARIANTES (1.217)",
+      items: [
+        ["Variante #418 (Stop 2.5% / TP 8%)", "1.000 tirages aléatoires : 96% de survie · Validée"],
+        ["Variante #419 (Levier 10x)", "Drawdown excessif (-24%) · Éliminée automatiquement"],
+        ["Variante #420 (Trailing Stop 40%)", "Profit Factor 2.14 · Retenue pour EXECUTOR"]
+      ]
+    },
+    rugs: {
+      title: "TOKENS & SIGNAUX BLOQUÉS PAR SÉCURITÉ (KILLED BY RULE)",
+      items: [
+        ["Liquidité < 40.000 € (445 bloqués)", "Risque de glissement (slippage) trop élevé"],
+        ["Mint / Freeze Authority actif (383 bloqués)", "Le créateur peut bloquer les ventes (Honeypot)"],
+        ["LP non verrouillée / non brûlée (328 bloqués)", "Risque de retrait de liquidité (Rug Pull) détecté"]
+      ]
+    },
+    scanned: {
+      title: "POOLS & MARCHÉS SCANNÉS EN TEMPS RÉEL (2.017)",
+      items: [
+        ["SOL / USDC (Raydium & Binance)", "Volume 24h élevé · Liquidité profonde · Actif"],
+        ["SWJ / SOL (Nouveau Pool)", "Score Analyst 94/100 · Trade exécuté (+377,40 €)"],
+        ["OR Futures GC (COMEX)", "Session Londres · Stratégie STRAT-894 active"]
+      ]
+    },
+    paper: {
+      title: "STRATÉGIES EN ENTRAÎNEMENT FICTIF (PAPER TRADING)",
+      items: [
+        ["VWAP Institutional Reversion", "Jour 11 / 21 · +14,2% virtuel · Sharpe 1.94"],
+        ["X Sentiment Spike Catcher", "Jour 8 / 21 · +22,8% virtuel · Profit F. 2.05"],
+        ["Funding Rate Arbitrage v2", "Jour 15 / 21 · +9,4% virtuel · Drawdown -1.8%"]
+      ]
+    },
+    budget: {
+      title: "CONFIGURATION DU BUDGET IA & PLAFOND DES GAINS",
+      items: [
+        ["Budget de calcul IA (ORION & HERMES)", "ILLIMITÉ (∞ cycles autorisés sans interruption)"],
+        ["Plafond des gains du portefeuille", "ILLIMITÉ (Auto-compounding activé sans limite haute)"],
+        ["Capital de départ configuré", formatEuro(CAPITAL_DEPART) + " (modifiable dans index.html)"]
+      ]
+    }
+  };
+
+  function openInspector(key) {
+    const data = inspectorData[key] || {
+      title: "DÉTAILS DU MODULE EN DIRECT",
+      items: [
+        ["Statut opérationnel", "Actif et synchronisé avec le Noyau-Cerveau"],
+        ["Performance cumulée", formatEuro(currentEquity) + " (" + ((currentEquity / CAPITAL_DEPART)).toFixed(2) + "×)"],
+        ["Sécurité & Filtres", "Rug Filter, Dev Check et Stop Guard actifs 24/7"]
+      ]
+    };
+    document.getElementById('modalTitle').textContent = data.title;
+    const body = document.getElementById('modalBody');
+    body.innerHTML = data.items.map(it => `
+      <div class="modal-item">
+        <div><strong style="color:#fff">${it[0]}</strong><div style="color:var(--text-dim); margin-top:3px;">${it[1]}</div></div>
+        <span style="color:var(--green)">● OK</span>
+      </div>
+    `).join('');
+    document.getElementById('inspectorModal').classList.add('open');
+  }
+
+  function closeInspector() {
+    document.getElementById('inspectorModal').classList.remove('open');
+  }
+
+  // AJOUT D'ACTIVITÉ (BLOQUÉ À 5 LIGNES MAX POUR GARDER LA HAUTEUR FIXE)
   function addActivityRow(title, sub, amount, isPositive) {
     const feed = document.getElementById('activityFeed');
     const row = document.createElement('div');
     row.className = 'activity-row';
+    row.onclick = () => switchView('logs', document.querySelectorAll('.nav-item')[4]);
     row.innerHTML = `
       <div><strong style="color:${isPositive ? 'var(--green)' : 'var(--red)'}">${title}</strong> <span style="color:var(--text-dim)">· ${sub}</span></div>
       <span style="color:${isPositive ? 'var(--green)' : 'var(--red)'}; font-weight:700">${amount}</span>
     `;
     feed.prepend(row);
-    if (feed.children.length > 5) feed.removeChild(feed.lastChild);
+    while (feed.children.length > 5) {
+      feed.removeChild(feed.lastChild);
+    }
+
+    // Ajouter aussi dans l'historique complet
+    const fullLogs = document.getElementById('fullLogsList');
+    if (fullLogs) {
+      const logItem = document.createElement('div');
+      logItem.className = 'modal-item';
+      logItem.innerHTML = `<div><strong style="color:${isPositive ? 'var(--green)' : 'var(--red)'}">${title}</strong> · ${sub}</div><span style="color:${isPositive ? 'var(--green)' : 'var(--red)'}">${amount}</span>`;
+      fullLogs.prepend(logItem);
+    }
+
     if (isPositive) {
-      document.getElementById('lastVerifiedBanner').innerHTML = `<span>✓ ${title} · <strong>${amount}</strong></span><span style="color:var(--green)">● verified</span>`;
+      document.getElementById('lastVerifiedBanner').innerHTML = `<span>✓ ${title} · <strong>${amount}</strong></span><span style="color:var(--green)">● verified (voir tout ↗)</span>`;
     }
   }
 
@@ -763,7 +1027,7 @@
     badge.textContent = Math.max(0, parseInt(badge.textContent) - 1);
   }
 
-  // SIMULATION CYCLE EN DIRECT (GAINS ILLIMITÉS)
+  // SIMULATION CYCLE EN DIRECT
   const tasks = [
     "EN COURS : Extraction signal X Feed (@solsniper · +0.91)",
     "EN COURS : Backtest Monte Carlo (1.000 tirages) sur variante #418",
@@ -783,7 +1047,6 @@
     taskIdx = (taskIdx + 1) % tasks.length;
     document.getElementById('globeTask').textContent = tasks[taskIdx];
 
-    // Croissance progressive sans plafond
     const isWin = Math.random() > 0.24;
     const delta = isWin
       ? currentEquity * (0.015 + Math.random() * 0.045)
@@ -793,7 +1056,7 @@
 
     if (delta > 0) {
       wins++;
-      if (Math.random() > 0.55) {
+      if (Math.random() > 0.45) {
         const pairs = ['SOL', 'SWJ', 'PUFF', 'BOBA', 'CSI'];
         const p = pairs[Math.floor(Math.random() * pairs.length)];
         addActivityRow('Sold ' + p, 'take profit', `+${formatEuro(delta)}`, true);
@@ -826,13 +1089,19 @@
     const h = canvas.offsetHeight;
     ctx.clearRect(0, 0, w, h);
 
-    if (equityHistory.length < 2) return;
-    const min = Math.min(...equityHistory) * 0.95;
-    const max = Math.max(...equityHistory) * 1.05;
+    let sliceCount = equityHistory.length;
+    if (activeTimeframe === '1H') sliceCount = Math.min(8, equityHistory.length);
+    else if (activeTimeframe === '4H') sliceCount = Math.min(14, equityHistory.length);
+    else if (activeTimeframe === '1D') sliceCount = Math.min(22, equityHistory.length);
+
+    const data = equityHistory.slice(-sliceCount);
+    if (data.length < 2) return;
+    const min = Math.min(...data) * 0.96;
+    const max = Math.max(...data) * 1.04;
 
     ctx.beginPath();
-    equityHistory.forEach((val, idx) => {
-      const x = (idx / (equityHistory.length - 1)) * w;
+    data.forEach((val, idx) => {
+      const x = (idx / (data.length - 1)) * w;
       const y = h - ((val - min) / (max - min || 1)) * (h - 12) - 6;
       if (idx === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
     });
@@ -850,7 +1119,7 @@
     ctx.fill();
   }
 
-  // GRAPHIQUE CHANDELIERS (LIVE SCREEN)
+  // GRAPHIQUE CHANDELIERS
   let candles = [];
   let lastClose = 142.5;
   for (let i = 0; i < 28; i++) {
@@ -864,9 +1133,9 @@
 
   function updateCandles() {
     let open = lastClose;
-    let close = open + (Math.random() - 0.45) * 3.8;
-    let high = Math.max(open, close) + Math.random() * 1.5;
-    let low = Math.min(open, close) - Math.random() * 1.5;
+    let close = open + (Math.random() - 0.45) * (lastClose * 0.02);
+    let high = Math.max(open, close) + Math.random() * (lastClose * 0.01);
+    let low = Math.min(open, close) - Math.random() * (lastClose * 0.01);
     let sig = Math.random() > 0.78 ? (close > open ? 'BUY' : 'SELL') : null;
     candles.push({ open, close, high, low, signal: sig });
     candles.shift();
@@ -884,17 +1153,18 @@
     const h = canvas.offsetHeight;
     ctx.clearRect(0, 0, w, h);
 
-    const min = Math.min(...candles.map(c => c.low)) - 1;
-    const max = Math.max(...candles.map(c => c.high)) + 1;
+    const min = Math.min(...candles.map(c => c.low));
+    const max = Math.max(...candles.map(c => c.high));
+    const pad = (max - min) * 0.1 || 1;
     const step = w / candles.length;
 
     candles.forEach((c, i) => {
       const x = i * step + step * 0.25;
       const bw = step * 0.5;
-      const yHigh = h - ((c.high - min) / (max - min)) * h;
-      const yLow = h - ((c.low - min) / (max - min)) * h;
-      const yOpen = h - ((c.open - min) / (max - min)) * h;
-      const yClose = h - ((c.close - min) / (max - min)) * h;
+      const yHigh = h - ((c.high - (min - pad)) / ((max + pad) - (min - pad))) * h;
+      const yLow = h - ((c.low - (min - pad)) / ((max + pad) - (min - pad))) * h;
+      const yOpen = h - ((c.open - (min - pad)) / ((max + pad) - (min - pad))) * h;
+      const yClose = h - ((c.close - (min - pad)) / ((max + pad) - (min - pad))) * h;
       const isUp = c.close >= c.open;
 
       ctx.strokeStyle = isUp ? '#10b981' : '#ef4444';
@@ -914,10 +1184,28 @@
     });
   }
 
-  // GLOBE NEURONAL 3D
+  // GLOBE NEURONAL 3D INTERACTIF (DRAG SOURIS + CLIC)
   const bCanvas = document.getElementById('brainCanvas');
   const bCtx = bCanvas.getContext('2d');
   let angle = 0;
+  let rotSpeed = 0.008;
+  let isDragging = false;
+  let lastMouseX = 0;
+
+  bCanvas.addEventListener('mousedown', e => { isDragging = true; lastMouseX = e.clientX; });
+  window.addEventListener('mouseup', () => { isDragging = false; });
+  window.addEventListener('mousemove', e => {
+    if (isDragging) {
+      angle += (e.clientX - lastMouseX) * 0.01;
+      lastMouseX = e.clientX;
+    }
+  });
+  bCanvas.addEventListener('click', () => {
+    rotSpeed = 0.045;
+    triggerCycle();
+    setTimeout(() => { rotSpeed = 0.008; }, 800);
+  });
+
   const pts = [];
   for (let i = 0; i < 160; i++) {
     const phi = Math.acos(-1 + (2 * i) / 160);
@@ -939,7 +1227,7 @@
     bCtx.clearRect(0, 0, w, h);
 
     const cx = w / 2, cy = h / 2, r = Math.min(w, h) * 0.38;
-    angle += 0.008;
+    if (!isDragging) angle += rotSpeed;
 
     pts.forEach(p => {
       const rx = p.x * Math.cos(angle) - p.z * Math.sin(angle);
